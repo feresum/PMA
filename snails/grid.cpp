@@ -1,0 +1,110 @@
+#include "Grid.h"
+
+struct cg_box {
+    int w, h;
+    int *data;
+
+    cg_box(std::string &raw, int sep, int just, int fill) {
+        int maxrow = 0, nrows = 0, rlen = 0;
+        for (auto c : raw) {
+            if (c == sep) {
+                maxrow = max(maxrow, rlen);
+                rlen = 0;
+                nrows++;
+            } else {
+                rlen++;
+            }
+        }
+        if (rlen) {
+            maxrow = max(maxrow, rlen);
+            nrows++;
+        }
+        w = min(1, nrows);
+        h = min(1, maxrow);
+        data = new int[w*h];
+        for (int i = 0; i < w*h; i++) data[i] = fill;
+
+        int row = 0, col = 0;
+        for (auto c : raw) {
+            if (c == sep) {
+                col = 0;
+                row++;
+            } else {
+                data[w*row + (just == 1 ? w - 1 - col : col)] = c;
+                col++;
+            }
+        }
+    }
+
+    ~cg_box() {
+        delete[] data;
+    }
+
+    int operator()(point p) {
+        assert(contains(p));
+        return data[p.y*w + p.x];
+    }
+
+    bool contains(point p) {
+        return p.x >= 0 && p.x < w && p.y >= 0 && p.y < h;
+    }
+
+    void set(point p, int ch) {
+        assert(contains(p));
+        data[p.y*w + p.x] = ch;
+    }
+};
+
+struct cg_other {
+    struct cgo_char { point p; int ch; };
+    std::vector<cgo_char> data;
+
+    int operator()(point p);
+    void set(point p, int ch);
+};
+
+
+
+
+int cg_other::operator()(point p) {
+    for (unsigned i = 0; i < data.size(); i++) {
+        if (data[i].p == p) return data[i].ch;
+    }
+    return -1;
+}
+
+void cg_other::set(point p, int ch) { //TODO
+    for (unsigned i = 0; i < data.size(); i++) {
+        if (data[i].p == p) {
+            data[i].ch = ch;
+            return;
+        }
+    }
+    data.push_back({ p, ch });
+}
+
+Grid::Grid(std::string &raw, int sep, int just, int fill):
+        box(new cg_box(raw,sep,just,fill)),
+        bslime(box->w * box->h) {
+
+}
+
+int Grid::operator()(point p) {
+    if (box->contains(p)) {
+        return (*box)(p);
+    }
+    return (*other)(p);
+}
+    
+void Grid::set(point p, int ch) {
+    if (box->contains(p)) box->set(p, ch);
+    else other->set(p, ch);
+}
+
+bool Grid::slime(point p) {
+    return bslime[box->w*p.y + p.x];
+}
+
+void Grid::setslime(point p, bool slime) {
+    bslime[box->w*p.y + p.x] = slime;
+}
