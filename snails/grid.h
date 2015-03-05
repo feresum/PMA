@@ -1,3 +1,6 @@
+#ifndef H_GRID
+#define H_GRID
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -11,7 +14,8 @@ struct cg_other;
 struct Grid {
     refc<cg_box> box;
     refc<cg_other> other;
-    std::vector<bool> bslime;
+
+    vector<bool> bslime;
 
     Grid(std::string &raw, int sep, int just, int fill);
     Grid(Grid &cg);
@@ -24,3 +28,5 @@ struct Grid {
     void setslime(point p, bool slime);
 };
 
+
+#endif

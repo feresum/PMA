@@ -57,7 +57,7 @@ struct cg_box {
 
 struct cg_other {
     struct cgo_char { point p; int ch; };
-    std::vector<cgo_char> data;
+    vector<cgo_char> data;
 
     int operator()(point p);
     void set(point p, int ch);

@@ -1,8 +1,11 @@
+#ifndef H_PARSE
+#define H_PARSE
+
 #include "general.h"
 
 struct s_i {
     str &s;
-    int i;
+    unsigned i;
     int get() {
         return i < s.length() ? s[i++] : -1;
     }
@@ -22,3 +25,4 @@ class parse_exc : std::exception {
 
     char *what() { return msg; }
 };
+#endif

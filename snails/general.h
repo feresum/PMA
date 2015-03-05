@@ -8,6 +8,8 @@
 using std::max;
 using std::min;
 
+using std::vector;
+
 typedef std::string str;
 
 struct point { int x, y; };
@@ -29,5 +31,7 @@ enum m_just {
     M_JUST_LEFT,
     M_JUST_RIGHT
 };
+
+#define MAX_PATTERN_STACK 999999;
 
 #endif

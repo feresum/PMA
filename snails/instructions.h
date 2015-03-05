@@ -1,3 +1,6 @@
+#ifndef H_INSTRUCTIONS
+#define H_INSTRUCTIONS
+
 #define INST_D_RIGHT 'r'
 #define INST_D_UP 'u'
 #define INST_D_LEFT 'l'
@@ -12,7 +15,7 @@
 #define INST_D_NORMAL 'n'
 #define INST_D_STATIONARY 's'
 #define INST_D_ABSNUM 'a'
-#define INST_D_RELNUM 'r'
+#define INST_D_RELNUM 'e'
 
 #define INST_GROUP_OPEN1 '('
 #define INST_GROUP_OPEN2 '{'
@@ -26,3 +29,4 @@
 #define INST_ESCAPE '\\'
 
 #define INST_QUANTIFIER_RANGE ','
+#endif
