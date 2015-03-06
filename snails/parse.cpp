@@ -102,16 +102,16 @@ vector<Token*> parse0(s_i &x) {
         switch (ch) {
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
         {
-                     x.back(1);
-                     unsigned ll = read_num(x), ul;
-                     if (x.peek() == INST_QUANTIFIER_RANGE) {
-                         x.get();
-                         ul = digit(x.peek()) ? read_num(x) : ~0;
-                     } else {
-                         ul = ll;
-                     }
-                     v.push_back(new T_Quantifier{ ll, ul });
-                     break;
+            x.back(1);
+            unsigned ll = read_num(x), ul;
+            if (x.peek() == INST_QUANTIFIER_RANGE) {
+                x.get();
+                ul = digit(x.peek()) ? read_num(x) : ~0;
+            } else {
+                ul = ll;
+            }
+            v.push_back(new T_Quantifier{ ll, ul });
+            break;
         }
 
         case INST_QUANTIFIER_RANGE:
@@ -174,47 +174,87 @@ vector<Token*> parse0(s_i &x) {
     return v;
 }
 
-P_Sequence * parse_group(vector<Token*> &t, int start, int end) {
+
+
+
+P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
     vector<Token*> t2;
     struct gi { int g, i; };
     vector<gi> groups;
-    for (int i = start; i < end; i++) {
+    for (size_t i = start; i < end; i++) {
         T_GroupOpen *open;
         T_GroupClose *close;
-        //TODO: t_groupdiv
+        
         if (open = dynamic_cast<T_GroupOpen*>(t.at(i))) {
-            groups.push_back({ open->type, i });
+            groups.push_back({ open->type, t2.size() });
         } else if (close = dynamic_cast<T_GroupClose*>(t.at(i)))  {
             while (groups.size() && groups.back().g != close->type) {
                 groups.pop_back();
             }
-            int i0 = start;
+            size_t i0 = 0;
             if (groups.size()) {
-                i0 = groups.back().i + 1;
+                i0 = groups.back().i;
                 groups.pop_back();
             }
-            t2.push_back(new T_Pattern{ parse_group(t, i0, i) });
+            T_Pattern *gr = new T_Pattern{ parse_group(t2, i0, t2.size()) };
+            t2.erase(t2.begin() + i0, t2.end());
+            t2.push_back(gr);
         } else {
             t2.push_back(t[i]);
         }
     } 
-    if (groups.size()) {
-        t2.push_back(new T_Pattern{ parse_group(t, groups[0].i+1, end) });
+    while (!groups.empty()) {
+        size_t i0 = groups.back().i;
+        groups.pop_back();
+        T_Pattern *gr = new T_Pattern{ parse_group(t2, i0, t2.size()) };
+        t2.erase(t2.begin() + i0, t2.end());
+        t2.push_back(gr);
     }
-    //vector<int> alts;
+
+    
+    vector<size_t> alts;
+    for (size_t i = 0; i < t2.size(); i++) {
+        if (isA<T_Alternator>(t2[i])) {
+            alts.push_back(i);
+        } else if (isA<T_GroupDiv>(t2[i])) {
+            size_t last = alts.empty() ? 0 : alts.back();
+            t2[last + 1] = new T_Pattern{ parse_group(t2, last + 1, i) };
+            t2.erase(t2.begin() + last + 2, t2.begin() + i + 1);
+            i = last + 1;
+        }
+    }
+    if (!alts.empty()) {
+        P_Alternation *a = new P_Alternation;
+        alts.push_back(t2.size());
+        size_t last = 0;
+        for (size_t i : alts) {
+            a->v.push_back(parse_group(t2, last, i));
+            last = i + 1;
+        }
+        P_Sequence *r = new P_Sequence;
+        r->v.push_back(a);
+        return r;
+    }
 
     P_Sequence *r = new P_Sequence;
     for (size_t i = 0; i < t2.size(); i++) {
-
+        if (isA<T_Pattern>(t2[i]))
             r->v.push_back(((T_Pattern*)(t2[i]))->p);
-        
+        else NEVERHAPPEN
     }
     return r;
 }
 
 P_Sequence * parse(s_i &prog) {
     auto toks = parse0(prog);
-    P_Sequence *res = parse_group(toks, 0, toks.size());
-    res->v.push_back(new P_Terminator);
-    return res;
+    Pattern *res = parse_group(toks, 0, toks.size());
+    P_Sequence *ps;
+    if (isA<P_Sequence>(res)) ps = (P_Sequence*)res;
+    else {
+        ps = new P_Sequence;
+        ps->v.push_back(res);
+    }
+    ps->v.push_back(new P_Terminator);
+    return ps;
 }
+

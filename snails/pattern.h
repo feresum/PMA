@@ -42,7 +42,11 @@ public:
     int match(vector<StateP> &stk);
 };
 
-class P_Alternation : public Pattern {};
+class P_Alternation : public Pattern {
+public:
+    vector<P_Sequence*> v;
+    int match(vector<StateP> &stk);
+};
 
 class P_Assertion : public Pattern { public: bool value; };
 

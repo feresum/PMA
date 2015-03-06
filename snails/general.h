@@ -44,4 +44,8 @@ enum match_result {
 };
 #define MAX_PATTERN_STACK 99999
 
+template<typename Sub, typename Super> inline bool isA(Super *thing) {
+    return !!dynamic_cast<Sub*>(thing);
+}
+
 #endif
