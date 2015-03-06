@@ -2,12 +2,14 @@
 #define H_PARSE
 
 #include "general.h"
+#include "pattern.h"
 
 struct s_i {
-    str &s;
+    const str &s;
     unsigned i;
     int get() {
-        return i < s.length() ? s[i++] : -1;
+        i += 1;
+        return i <= s.length() ? s[i-1] : -1;
     }
     int peek(int d = 0) {
         return i < s.length() ? s[i + d] : -1;
@@ -25,4 +27,8 @@ class parse_exc : std::exception {
 
     char *what() { return msg; }
 };
+
+P_Sequence* parse(s_i &prog);
+
+
 #endif

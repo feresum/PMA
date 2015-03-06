@@ -2,13 +2,27 @@
 
 
 
-State::State(Grid g) : cg(g) { }
-State::State(State &o) :
-    cg(o.cg), direction(o.direction), position(o.position), flags(o.flags) { }
+State::State(const Grid &g) : cg(g), flags(SF_NON_MOVE_MATCH) { }
+
+point State::nextPos() {
+    if (flags & SF_NON_MOVE_MATCH) {
+        return position;
+    } else {
+        return position + direction;
+    }
+}
+int State::nextChar() {
+    return cg(nextPos());
+}
+
+bool State::canAdvance() {
+    return !cg.slime(nextPos());
+}
 
 void State::advance() {
-    position = position + direction;
+    position = nextPos();
     cg.setslime(position, 1);
+    flags &= ~SF_NON_MOVE_MATCH;
 }
 
 
@@ -19,5 +33,5 @@ void State::advance() {
 StateP::StateP(State st, P_Sequence *seq, int iseq) :
         st(st), seq(seq), iseq(iseq) { }
 
-StateP::StateP(StateP &o) : st(o.st), seq(o.seq), iseq(o.iseq) { }
+
 

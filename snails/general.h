@@ -32,6 +32,16 @@ enum m_just {
     M_JUST_RIGHT
 };
 
-#define MAX_PATTERN_STACK 999999;
+#define OUT_CHAR ((int)0x80000000)
+
+#define NEVERHAPPEN assert(0),0;
+
+
+enum match_result {
+    MATCH_RESULT_FAIL,
+    MATCH_RESULT_SUCCESS,
+    MATCH_RESULT_OVERFLOW
+};
+#define MAX_PATTERN_STACK 99999
 
 #endif

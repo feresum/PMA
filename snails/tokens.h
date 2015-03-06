@@ -12,19 +12,14 @@ Token::~Token() { }
 
 class T_Pattern : public Token {
 public:
-    Pattern &p;
-    T_Pattern(Pattern &p) : p(p) { }
+    Pattern *p;
+    T_Pattern(Pattern *p) : p(p) { }
 };
 
 class T_Assert : public Token {
     bool value;
 };
 
-class T_DirList : public Token {
-public:
-    vector<PS_Direction> list;
-    T_DirList(vector<PS_Direction> list) : list(list) { }
-};
 
 class T_GroupOpen : public Token {
 public:

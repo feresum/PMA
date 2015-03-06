@@ -11,10 +11,13 @@ public:
     point position;
     int flags;
 
-    State(Grid g);
-    State(State &o);
+    State(const Grid &g);
+    inline State(const State &o) = default;
 
-   void advance();
+    point nextPos();
+    int nextChar();
+    bool canAdvance();
+    void advance();
 };
 
 class P_Sequence;
@@ -27,8 +30,10 @@ public:
 
     StateP(State st, P_Sequence *seq, int iseq);
 
-    StateP(StateP &o);
+    inline StateP(const StateP &o) = default;
 
 };
+
+#define SF_NON_MOVE_MATCH 0x1
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef H_INSTRUCTIONS
 #define H_INSTRUCTIONS
 
+#define INST_OPTION_RJUST 'r'
+#define INST_OPTION_BOOLEAN '?'
+
+
 #define INST_D_RIGHT 'r'
 #define INST_D_UP 'u'
 #define INST_D_LEFT 'l'

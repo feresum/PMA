@@ -19,9 +19,9 @@ int P_DirectionAlternation::match(vector<StateP> &stk) {
     StateP sp = stk.back(); stk.pop_back();
 
     vector<point> dirs;
-    for (auto pd : list) {
-        point d = pd.getDir(sp.st.direction);
-        if (std::find(dirs.begin(), dirs.end(), d) != dirs.end()) {
+    for (int i = 0; i < list.size(); i++) {
+        point d = list[i]->getDir(sp.st.direction);
+        if (std::find(dirs.begin(), dirs.end(), d) == dirs.end()) {
             dirs.push_back(d);
         }
     }
@@ -35,8 +35,9 @@ int P_DirectionAlternation::match(vector<StateP> &stk) {
 
 int P_Char::match(vector<StateP> &stk) {
     State &st = stk.back().st;
-    if (testch(st.cg(st.position + st.direction))) {
+    if (testch(st.nextChar()) && st.canAdvance()) {
         st.advance();
+        stk.back().iseq++;
     } else {
         stk.pop_back();
     }
@@ -45,5 +46,15 @@ int P_Char::match(vector<StateP> &stk) {
 
 int P_Terminator::match(vector<StateP> &stk) {
     return 1;
+}
+
+int P_Sequence::match(vector<StateP> &stk) {
+    auto &bk = stk.back();
+    //TODO lolol
+    parent = bk.seq; 
+    iparent = bk.iseq;
+    bk.seq = this;
+    bk.iseq = 0;
+    return 0;
 }
 
