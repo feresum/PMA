@@ -219,7 +219,7 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
         } else if (isA<T_GroupDiv>(t2[i])) {
             size_t last = alts.empty() ? 0 : alts.back();
             t2[last + 1] = new T_Pattern{ parse_group(t2, last + 1, i) };
-            t2.erase(t2.begin() + last + 2, t2.begin() + i + 1);
+            t2.erase(t2 + last + 2, t2 + i + 1);
             i = last + 1;
         }
     }
@@ -237,10 +237,19 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
     }
 
     P_Sequence *r = new P_Sequence;
+    size_t abegin = ~0;
     for (size_t i = 0; i < t2.size(); i++) {
-        if (isA<T_Pattern>(t2[i]))
+        T_Quantifier *tq;
+        if (isA<T_Pattern>(t2[i])) {
+            abegin = r->v.size();
             r->v.push_back(((T_Pattern*)(t2[i]))->p);
-        else NEVERHAPPEN
+        }  else if (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
+            if (!~abegin) {
+                throw parse_exc("Nothing to quantify");
+            }
+            r->v.insert(r->v + abegin, new P_Quantifier(tq->minimum, tq->maximum, r->v.size() - abegin + 2));
+            r->v.push_back(new P_Jump(int(abegin) - int(r->v.size())));
+        } else NEVERHAPPEN
     }
     return r;
 }

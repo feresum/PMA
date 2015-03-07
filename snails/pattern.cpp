@@ -68,3 +68,23 @@ int P_Sequence::match(vector<StateP> &stk) {
     return 0;
 }
 
+int P_Jump::match(vector<StateP> &stk) {
+    stk.back().iseq += offset;
+    return 0;
+}
+
+int P_Quantifier::match(vector<StateP> &stk) {
+    StateP sp = stk.back(); stk.pop_back();
+    if (minimum) {
+        --minimum;
+    } else {
+        stk.push_back(sp);
+        stk.back().iseq += offset;
+    } 
+    if (maximum) {
+        --maximum;
+        stk.push_back(sp);
+        stk.back().iseq++;
+    }
+    return 0;
+}

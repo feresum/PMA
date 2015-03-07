@@ -48,4 +48,9 @@ template<typename Sub, typename Super> inline bool isA(Super *thing) {
     return !!dynamic_cast<Sub*>(thing);
 }
 
+template<typename T> typename vector<T>::iterator operator+(vector<T> &v, int i) {
+    return v.begin() + i;
+}
+
+
 #endif

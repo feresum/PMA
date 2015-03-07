@@ -99,4 +99,20 @@ public:
     int match(vector<StateP> &stk);
 };
 
+class P_Jump : public Pattern {
+public:
+    int offset;
+    P_Jump(int offset) : offset(offset) { }
+    int match(vector<StateP> &stk);
+};
+
+class P_Quantifier : public Pattern {
+public:
+    int minimum, maximum;
+    int offset;
+    P_Quantifier(int minimum, int maximum, int offset) : 
+        minimum(minimum), maximum(maximum), offset(offset) { }
+    int match(vector<StateP> &stk);
+};
+
 #endif

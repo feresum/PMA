@@ -37,7 +37,15 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     }
 
     s_i body{ program, nl + 1 };
-    P_Sequence *pat = parse(body);
+    P_Sequence *pat;
+    try {
+        pat = parse(body);
+    } catch (parse_exc e) {
+        err << "Parse error: " << e.what();
+        if (~e.i) err << " at position " << e.i;
+        err << std::endl;
+        return;
+    }
 
     State global(Grid{ input, '\n', just, OUT_CHAR });
 

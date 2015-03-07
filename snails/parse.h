@@ -20,10 +20,11 @@ struct s_i {
 };
 
 class parse_exc : std::exception {
+public:
     char *msg;
     int i;
 
-    parse_exc(char *msg, int i) : msg(msg), i(i) { }
+    parse_exc(char *msg, int i = -1) : msg(msg), i(i) { }
 
     char *what() { return msg; }
 };
