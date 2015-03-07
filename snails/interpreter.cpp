@@ -33,6 +33,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
         for (int c; ~(c = o.get());) {
             if (c == INST_OPTION_BOOLEAN) type = M_TYPE_BOOLEAN;
             else if (c == INST_OPTION_RJUST) just = M_JUST_RIGHT;
+            else if (c == INST_OPTION_TOPLEFT) start = M_START_TOPLEFT;
         }
     }
 
@@ -51,8 +52,10 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
 
     int nmatch = 0;
 
-    for (int y = 0; y < global.cg.bHeight(); y++) {
-        for (int x = 0; x < global.cg.bWidth(); x++) {
+    int xmax = start == M_START_ALLBOX ? global.cg.bWidth() : 1;
+    int ymax = start == M_START_ALLBOX ? global.cg.bHeight() : 1;
+    for (int y = 0; y < ymax; y++) {
+        for (int x = 0; x < xmax; x++) {
             State local{ global };
             local.direction = { 1, 0 };
             local.position = { x, y };
