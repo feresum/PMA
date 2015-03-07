@@ -30,7 +30,9 @@ public:
     int c;
     P_CharExact(int c) : c(c) { }
 
-    bool testch(int ch) { return c == ch; }
+    bool testch(int ch) { 
+        return c == ch; 
+    }
 };
 
 class P_Sequence : public Pattern {
@@ -48,7 +50,15 @@ public:
     int match(vector<StateP> &stk);
 };
 
-class P_Assertion : public Pattern { public: bool value; };
+class P_Assertion : public Pattern { 
+public: 
+    bool value; 
+    P_Sequence *pattern;
+    
+    P_Assertion(bool value, P_Sequence *pattern) : value(value), pattern(pattern) { }
+
+    int match(vector<StateP> &stk);
+};
 
 
 class P_SetState : public Pattern {
@@ -110,8 +120,8 @@ class P_Quantifier : public Pattern {
 public:
     int minimum, maximum;
     int offset;
-    P_Quantifier(int minimum, int maximum, int offset) : 
-        minimum(minimum), maximum(maximum), offset(offset) { }
+    P_Quantifier(int minimum, int maximum) : 
+        minimum(minimum), maximum(maximum) { }
     int match(vector<StateP> &stk);
 };
 

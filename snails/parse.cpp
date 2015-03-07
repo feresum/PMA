@@ -168,6 +168,15 @@ vector<Token*> parse0(s_i &x) {
             v.push_back(new T_Pattern{ new P_DirectionAlternation{ read_dirs(x) } });
             break;
 
+        case INST_ASSERT_POSITIVE:
+            v.push_back(new T_Assert{ true });
+            break;
+        case INST_ASSERT_NEGATIVE:
+            v.push_back(new T_Assert{ false });
+            break;
+
+        default:
+            throw parse_exc("Unrecognized instruction", x.i);
         }//switch
     
     }
@@ -237,20 +246,46 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
     }
 
     P_Sequence *r = new P_Sequence;
-    size_t abegin = ~0;
-    for (size_t i = 0; i < t2.size(); i++) {
+    for (int i = 0; i < t2.size(); i++) {
         T_Quantifier *tq;
-        if (isA<T_Pattern>(t2[i])) {
-            abegin = r->v.size();
-            r->v.push_back(((T_Pattern*)(t2[i]))->p);
-        }  else if (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
-            if (!~abegin) {
+        if (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
+            if (!i) {
                 throw parse_exc("Nothing to quantify");
             }
-            r->v.insert(r->v + abegin, new P_Quantifier(tq->minimum, tq->maximum, r->v.size() - abegin + 2));
-            r->v.push_back(new P_Jump(int(abegin) - int(r->v.size())));
-        } else NEVERHAPPEN
+            tq->target = t2[i - 1];
+            t2.erase(t2 + --i);
+        }
     }
+
+    for (size_t i = 0; i < t2.size(); i++) {
+        T_Assert *ass;
+        if (ass = dynamic_cast<T_Assert*>(t2[i])) {
+            if (i + 1 == t2.size()) {
+                throw parse_exc("Nothing to assert");
+            }
+            P_Sequence *s = parse_group(t2, i + 1, i + 2);
+            s->v.push_back(new P_Terminator);
+            t2[i] = new T_Pattern(new P_Assertion(ass->value, s));
+
+            t2.erase(t2 + i + 1);
+        }
+    }
+
+    for (size_t i = 0; i < t2.size(); i++) {
+        int qlevel = 0;
+        T_Quantifier *tq;
+        while (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
+            r->v.push_back(new P_Quantifier(tq->minimum, tq->maximum));
+            qlevel++;
+        }
+        assert(isA<T_Pattern>(t2[i]));
+        r->v.push_back(((T_Pattern*)(t2[i]))->p);
+        for (int j = 1; j <= qlevel; j++) {
+            ((P_Quantifier*)(r->v[r->v.size() - 2*j]))->offset = 2*j + 1;
+            r->v.push_back(new P_Jump{ -2 * j });
+        }
+    }
+
     return r;
 }
 

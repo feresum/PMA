@@ -17,7 +17,9 @@ public:
 };
 
 class T_Assert : public Token {
+public:
     bool value;
+    T_Assert(bool value) : value(value) { }
 };
 
 
@@ -38,9 +40,11 @@ class T_GroupDiv : public Token {};
 class T_Quantifier : public Token { 
 public:
     unsigned minimum, maximum; 
+    Token *target;
     T_Quantifier(unsigned mi, unsigned ma): minimum(mi), maximum(ma) { }
 };
 
 class T_Alternator : public Token {};
+
 
 #endif

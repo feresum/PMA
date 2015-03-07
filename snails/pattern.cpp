@@ -1,4 +1,6 @@
 #include "pattern.h"
+#include "interpreter.h"
+#include "execute.h"
 
 point PS_DirAbsolute::getDir(point prev) {
     return dir;
@@ -7,7 +9,7 @@ point PS_DirAbsolute::getDir(point prev) {
 point PS_DirRelative::getDir(point prev) {
     const int m1[] = { 1, 1, 0, -1, -1, -1, 0, 1};
     int c = m1[angle], s = m1[angle + 6 & 7];
-    point r = { c*prev.x - s*prev.y, c*prev.x + s*prev.y };
+    point r = { c*prev.x + s*prev.y, c*prev.y - s*prev.x };
     if (!((r.x | r.y) & 1)) {
         r.x /= 2;
         r.y /= 2;
@@ -85,6 +87,16 @@ int P_Quantifier::match(vector<StateP> &stk) {
         --maximum;
         stk.push_back(sp);
         stk.back().iseq++;
+    }
+    return 0;
+}
+
+
+int P_Assertion::match(vector<StateP> &stk) {
+    if (::match(stk.back().st, pattern) == value) {
+        stk.back().iseq++;
+    } else {
+        stk.pop_back();
     }
     return 0;
 }

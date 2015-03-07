@@ -34,5 +34,7 @@
 
 #define INST_QUANTIFIER_RANGE ','
 
+#define INST_ASSERT_POSITIVE '='
+#define INST_ASSERT_NEGATIVE '!'
 
 #endif
