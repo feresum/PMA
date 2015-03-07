@@ -25,6 +25,11 @@ public:
     bool testch(int ch) { return ch >= 0; }
 };
 
+class P_CharOut : public P_Char {
+public:
+    bool testch(int ch) { return ch < 0; }
+};
+
 class P_CharExact : public P_Char { 
 public: 
     int c;
@@ -118,11 +123,17 @@ public:
 
 class P_Quantifier : public Pattern {
 public:
-    int minimum, maximum;
+    int minimum, maximum, count;
     int offset;
     P_Quantifier(int minimum, int maximum) : 
         minimum(minimum), maximum(maximum) { }
     int match(vector<StateP> &stk);
 };
+
+class P_QReset : public Pattern {
+public:
+    int match(vector<StateP> &stk);
+};
+
 
 #endif

@@ -41,7 +41,8 @@ class T_Quantifier : public Token {
 public:
     unsigned minimum, maximum; 
     Token *target;
-    T_Quantifier(unsigned mi, unsigned ma): minimum(mi), maximum(ma) { }
+    T_Quantifier(unsigned mi, unsigned ma): 
+        minimum(mi), maximum(ma), target{} { }
 };
 
 class T_Alternator : public Token {};

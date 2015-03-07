@@ -125,6 +125,14 @@ vector<Token*> parse0(s_i &x) {
             v.push_back(new T_Pattern{ new P_CharExact{ x.get() } });
             break;
 
+        case INST_CHAR_ANY:
+            v.push_back(new T_Pattern{ new P_CharAny });
+            break;
+
+        case INST_CHAR_OUT:
+            v.push_back(new T_Pattern{ new P_CharOut });
+            break;
+
         case INST_ALTERNATION:
             v.push_back(new T_Alternator{});
             break;
@@ -245,15 +253,17 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
         return r;
     }
 
-    P_Sequence *r = new P_Sequence;
-    for (int i = 0; i < t2.size(); i++) {
+    
+    for (size_t i = 0; i < t2.size(); i++) {
         T_Quantifier *tq;
         if (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
-            if (!i) {
-                throw parse_exc("Nothing to quantify");
+            if (!tq->target) {
+                if (!i) {
+                    throw parse_exc("Nothing to quantify");
+                }
+                tq->target = t2[i - 1];
+                t2.erase(t2 + --i);
             }
-            tq->target = t2[i - 1];
-            t2.erase(t2 + --i);
         }
     }
 
@@ -271,18 +281,22 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
         }
     }
 
+    P_Sequence *r = new P_Sequence;
+
     for (size_t i = 0; i < t2.size(); i++) {
         int qlevel = 0;
         T_Quantifier *tq;
         while (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
+            r->v.push_back(new P_QReset);
             r->v.push_back(new P_Quantifier(tq->minimum, tq->maximum));
             qlevel++;
+            t2[i] = tq->target;
         }
         assert(isA<T_Pattern>(t2[i]));
         r->v.push_back(((T_Pattern*)(t2[i]))->p);
         for (int j = 1; j <= qlevel; j++) {
-            ((P_Quantifier*)(r->v[r->v.size() - 2*j]))->offset = 2*j + 1;
-            r->v.push_back(new P_Jump{ -2 * j });
+            ((P_Quantifier*)(r->v[r->v.size() - 2*j]))->offset = 3*j;
+            r->v.push_back(new P_Jump{ 1 - 3*j });
         }
     }
 

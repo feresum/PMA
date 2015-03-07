@@ -26,8 +26,6 @@ void State::advance() {
 }
 
 
-
-
 StateP::StateP(State st, P_Sequence *seq, int iseq) :
         st(st), seq(seq), iseq(iseq) { }
 

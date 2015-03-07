@@ -30,6 +30,9 @@
 #define INST_ALTERNATION '|'
 
 #define INST_CHAR_LITERAL '\\'
+#define INST_CHAR_ANY '.'
+#define INST_CHAR_OUT '~'
+
 #define INST_ESCAPE '\\'
 
 #define INST_QUANTIFIER_RANGE ','
