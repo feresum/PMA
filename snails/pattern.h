@@ -123,7 +123,7 @@ public:
 
 class P_Quantifier : public Pattern {
 public:
-    int minimum, maximum, count;
+    unsigned minimum, maximum, count;
     int offset;
     P_Quantifier(int minimum, int maximum) : 
         minimum(minimum), maximum(maximum) { }

@@ -106,7 +106,7 @@ vector<Token*> parse0(s_i &x) {
             unsigned ll = read_num(x), ul;
             if (x.peek() == INST_QUANTIFIER_RANGE) {
                 x.get();
-                ul = digit(x.peek()) ? read_num(x) : ~0;
+                ul = digit(x.peek()) ? read_num(x) : ~0U;
             } else {
                 ul = ll;
             }
@@ -116,10 +116,18 @@ vector<Token*> parse0(s_i &x) {
 
         case INST_QUANTIFIER_RANGE:
         {
-            unsigned ul = digit(x.peek()) ? read_num(x) : ~0;
+            unsigned ul = digit(x.peek()) ? read_num(x) : ~0U;
             v.push_back(new T_Quantifier{ 0, ul });
             break;
         }
+
+        case INST_QUANTIFIER_AT_LEAST_1:
+            v.push_back(new T_Quantifier{ 1, ~0U });
+            break;
+
+        case INST_QUANTIFIER_AT_MOST_1:
+            v.push_back(new T_Quantifier{ 0, 1 });
+            break;
 
         case INST_CHAR_LITERAL:
             v.push_back(new T_Pattern{ new P_CharExact{ x.get() } });

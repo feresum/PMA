@@ -36,6 +36,8 @@
 #define INST_ESCAPE '\\'
 
 #define INST_QUANTIFIER_RANGE ','
+#define INST_QUANTIFIER_AT_MOST_1 '?'
+#define INST_QUANTIFIER_AT_LEAST_1 '+'
 
 #define INST_ASSERT_POSITIVE '='
 #define INST_ASSERT_NEGATIVE '!'
