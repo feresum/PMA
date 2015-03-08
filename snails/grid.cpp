@@ -19,6 +19,8 @@ struct cg_box {
             maxrow = max(maxrow, rlen);
             nrows++;
         }
+        bool empty = maxrow < 1 && nrows < 1;
+        if (empty) fill = OUT_CHAR;
         w = max(1, maxrow);
         h = max(1, nrows);
         data = new int[w*h];

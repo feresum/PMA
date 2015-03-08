@@ -8,13 +8,15 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     
     int nl = program.find('\n');
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
+    int chfill = OUT_CHAR;
     if (~nl) {
-        str opts = program.substr(0, nl);
-        s_i o{ opts, 0 };
-        for (int c; ~(c = o.get());) {
+        s_i o{ program, 0 };
+        for (int c; c = o.get(); o.i < nl) {
             if (c == INST_OPTION_BOOLEAN) type = M_TYPE_BOOLEAN;
             else if (c == INST_OPTION_RJUST) just = M_JUST_RIGHT;
             else if (c == INST_OPTION_TOPLEFT) start = M_START_TOPLEFT;
+            else if (c == INST_OPTION_FILL_SPACE) chfill = ' ';
+            else if (c == INST_OPTION_FILL_CHAR) chfill = o.get();
         }
     }
 
@@ -29,7 +31,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
         return;
     }
 
-    State global(Grid{ input, '\n', just, OUT_CHAR });
+    State global(Grid{ input, '\n', just, chfill });
 
     int nmatch = 0;
 

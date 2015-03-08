@@ -30,35 +30,30 @@ vector<PS_Direction*> read_dirs(s_i &x) {
             v.push_back(new PS_DirAbsolute{ point{ 1, 0 } });
             break;
         case INST_D_UP:
-            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
+            v.push_back(new PS_DirAbsolute{ point{ 0, -1 } });
             break;
         case INST_D_LEFT:
             v.push_back(new PS_DirAbsolute{ point{ -1, 0 } });
             break;
         case INST_D_DOWN:
-            v.push_back(new PS_DirAbsolute{ point{ 0, -1 } });
+            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
             break;
         case INST_D_ORTHOGONAL:
             v.push_back(new PS_DirAbsolute{ point{ 1, 0 } });
-            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, 0 } });
             v.push_back(new PS_DirAbsolute{ point{ 0, -1 } });
+            v.push_back(new PS_DirAbsolute{ point{ -1, 0 } });
+            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
             break;
         case INST_D_DIAGONAL:
-            v.push_back(new PS_DirAbsolute{ point{ 1, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, -1 } });
             v.push_back(new PS_DirAbsolute{ point{ 1, -1 } });
+            v.push_back(new PS_DirAbsolute{ point{ -1, -1 } });
+            v.push_back(new PS_DirAbsolute{ point{ -1, 1 } });
+            v.push_back(new PS_DirAbsolute{ point{ 1, 1 } });
             break;
         case INST_D_OCTILINEAR:
-            v.push_back(new PS_DirAbsolute{ point{ 1, 0 } });
-            v.push_back(new PS_DirAbsolute{ point{ 1, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, 0 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, -1 } });
-            v.push_back(new PS_DirAbsolute{ point{ 0, -1 } });
-            v.push_back(new PS_DirAbsolute{ point{ 1, -1 } });
+            for (point p : DIRECTION_LIST) {
+                v.push_back(new PS_DirAbsolute{ p });
+            }
             break;
         case INST_D_CLOCKWISE:
             v.push_back(new PS_DirRelative{ 6 });
@@ -80,10 +75,11 @@ vector<PS_Direction*> read_dirs(s_i &x) {
             v.push_back(new PS_DirAbsolute{ point{ 0, 0 } });
             break;
         case INST_D_ABSNUM:
-            //v.push_back(new PS_Dir; TODO
+            if (!digit(x.peek())) throw parse_exc("Missing digit for absolute direction", x.i);
+            v.push_back(new PS_DirAbsolute(DIRECTION_LIST[x.get() & 7]));
             break;
         case INST_D_RELNUM:
-            v.push_back(new PS_DirRelative{ read_num(x) });
+            v.push_back(new PS_DirRelative{ digit(x.peek())? x.get() & 7: 1 });
             break;
         default:
             x.back(1);
@@ -192,7 +188,9 @@ vector<Token*> parse0(s_i &x) {
             break;
 
         default:
-            throw parse_exc("Unrecognized instruction", x.i);
+            if (!strchr(" \n\t", ch)) {
+                throw parse_exc("Unrecognized instruction", x.i);
+            }
         }//switch
     
     }

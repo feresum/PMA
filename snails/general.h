@@ -33,5 +33,7 @@ template<typename T> typename vector<T>::iterator operator+(vector<T> &v, int i)
     return v.begin() + i;
 }
 
+const point DIRECTION_LIST[] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
+
 
 #endif
