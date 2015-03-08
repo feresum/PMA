@@ -33,6 +33,7 @@
 #define INST_ALTERNATION '|'
 
 #define INST_CHAR_LITERAL '\\'
+#define INST_CHAR_NEGATIVE_LITERAL '^'
 #define INST_CHAR_ANY '.'
 #define INST_CHAR_OUT '~'
 

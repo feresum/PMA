@@ -40,6 +40,16 @@ public:
     }
 };
 
+class P_CharNegative : public P_Char {
+public:
+    int c;
+    P_CharNegative(int c) : c(c) { }
+
+    bool testch(int ch) {
+        return ch >= 0 && c != ch;
+    }
+};
+
 class P_Sequence : public Pattern {
 public:
     vector<Pattern*> v;

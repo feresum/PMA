@@ -129,6 +129,10 @@ vector<Token*> parse0(s_i &x) {
             v.push_back(new T_Pattern{ new P_CharExact{ x.get() } });
             break;
 
+        case INST_CHAR_NEGATIVE_LITERAL:
+            v.push_back(new T_Pattern{ new P_CharNegative{ x.get() } });
+            break;
+
         case INST_CHAR_ANY:
             v.push_back(new T_Pattern{ new P_CharAny });
             break;

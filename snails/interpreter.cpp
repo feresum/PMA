@@ -11,7 +11,8 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     int chfill = OUT_CHAR;
     if (~nl) {
         s_i o{ program, 0 };
-        for (int c; c = o.get(); o.i < nl) {
+        for (int c; o.i < nl; ) {
+            c = o.get();
             if (c == INST_OPTION_TYPE_BOOLEAN) type = M_TYPE_BOOLEAN;
             else if (c == INST_OPTION_TYPE_ALL) type = M_TYPE_ALL;
             else if (c == INST_OPTION_RJUST) just = M_JUST_RIGHT;
