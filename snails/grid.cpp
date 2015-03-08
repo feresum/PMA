@@ -4,7 +4,7 @@ struct cg_box {
     int w, h;
     int *data;
 
-    cg_box(const std::string &raw, int sep, int just, int fill) {
+    cg_box(const std::string &raw, int sep, int just, int fill, bool &empty) {
         int maxrow = 0, nrows = 0, rlen = 0;
         for (auto c : raw) {
             if (c == sep) {
@@ -19,7 +19,7 @@ struct cg_box {
             maxrow = max(maxrow, rlen);
             nrows++;
         }
-        bool empty = maxrow < 1 && nrows < 1;
+        empty = maxrow < 1;
         if (empty) fill = OUT_CHAR;
         w = max(1, maxrow);
         h = max(1, nrows);
@@ -94,8 +94,8 @@ void cg_other::set(point p, int ch) { //TODO
     data.push_back({ p, ch });
 }
 
-Grid::Grid(const std::string &raw, int sep, int just, int fill):
-        box(new cg_box(raw,sep,just,fill)),
+Grid::Grid(const std::string &raw, int sep, int just, int fill, bool &empty):
+        box(new cg_box(raw,sep,just,fill,empty)),
         other(new cg_other) { }
 
 int Grid::operator()(point p) {

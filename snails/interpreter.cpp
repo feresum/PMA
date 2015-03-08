@@ -12,9 +12,10 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     if (~nl) {
         s_i o{ program, 0 };
         for (int c; c = o.get(); o.i < nl) {
-            if (c == INST_OPTION_BOOLEAN) type = M_TYPE_BOOLEAN;
+            if (c == INST_OPTION_TYPE_BOOLEAN) type = M_TYPE_BOOLEAN;
+            else if (c == INST_OPTION_TYPE_ALL) type = M_TYPE_ALL;
             else if (c == INST_OPTION_RJUST) just = M_JUST_RIGHT;
-            else if (c == INST_OPTION_TOPLEFT) start = M_START_TOPLEFT;
+            else if (c == INST_OPTION_START_TOPLEFT) start = M_START_TOPLEFT;
             else if (c == INST_OPTION_FILL_SPACE) chfill = ' ';
             else if (c == INST_OPTION_FILL_CHAR) chfill = o.get();
         }
@@ -30,8 +31,12 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
         err << std::endl;
         return;
     }
-
-    State global(Grid{ input, '\n', just, chfill });
+    bool empty;
+    State global(Grid{ input, '\n', just, chfill, empty });
+    if (empty && type == M_TYPE_ALL) {
+        out << 1;
+        return;
+    }
 
     int nmatch = 0;
 
@@ -55,5 +60,9 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             }
         }
     }
-    out << nmatch;
+    if (type == M_TYPE_ALL) {
+        out << +(nmatch == xmax * ymax);
+    } else {
+        out << nmatch;
+    }
 }

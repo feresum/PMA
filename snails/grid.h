@@ -17,7 +17,7 @@ struct Grid {
     refc<cg_box> box;
     refc<cg_other> other;
 
-    Grid(const std::string &raw, int sep, int just, int fill);
+    Grid(const std::string &raw, int sep, int just, int fill, bool &empty);
     inline Grid(const Grid &cg) = default;
 
     int operator()(point p);

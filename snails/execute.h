@@ -5,7 +5,8 @@ enum m_start {
 
 enum m_type {
     M_TYPE_COUNT,
-    M_TYPE_BOOLEAN
+    M_TYPE_BOOLEAN,
+    M_TYPE_ALL
 };
 
 enum m_just {
