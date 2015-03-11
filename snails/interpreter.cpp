@@ -6,7 +6,7 @@
 
 void interpreter(const str &program, const str &input, std::ostream &out, std::ostream &err) {
     
-    int nl = program.find('\n');
+    size_t nl = program.find('\n');
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
     int chfill = OUT_CHAR;
     if (~nl) {

@@ -6,7 +6,7 @@
 
 struct s_i {
     const str &s;
-    unsigned i;
+    size_t i;
     int get() {
         i += 1;
         return i <= s.length() ? s[i-1] : -1;
@@ -21,12 +21,12 @@ struct s_i {
 
 class parse_exc : std::exception {
 public:
-    char *msg;
+    const char *msg;
     int i;
 
-    parse_exc(char *msg, int i = -1) : msg(msg), i(i) { }
+    parse_exc(const char *msg, int i = -1) : msg(msg), i(i) { }
 
-    char *what() { return msg; }
+    const char *what() { return msg; }
 };
 
 P_Sequence* parse(s_i &prog);

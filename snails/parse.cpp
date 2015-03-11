@@ -1,4 +1,5 @@
 #include <typeinfo>
+#include <cctype>
 
 #include "parse.h"
 #include "pattern.h"
@@ -192,7 +193,7 @@ vector<Token*> parse0(s_i &x) {
             break;
 
         default:
-            if (!strchr(" \n\t", ch)) {
+            if (!isspace(ch)) {
                 throw parse_exc("Unrecognized instruction", x.i);
             }
         }//switch
@@ -206,7 +207,7 @@ vector<Token*> parse0(s_i &x) {
 
 P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
     vector<Token*> t2;
-    struct gi { int g, i; };
+    struct gi { int g; size_t i; };
     vector<gi> groups;
     for (size_t i = start; i < end; i++) {
         T_GroupOpen *open;

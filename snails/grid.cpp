@@ -72,7 +72,7 @@ struct cg_other {
 
 template<typename T> inline void uniquify(refc<T> &ptr) {
     if (ptr.use_count() > 1) {
-        ptr.reset(new T{ *ptr });
+        ptr.reset(new T(*ptr));
     }
 }
 
