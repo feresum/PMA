@@ -1,7 +1,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include "interpreter.h"
+#include "../snails/interpreter.h"
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
@@ -30,6 +30,6 @@ int main(int argc, char* argv[]) {
 
     interpreter(srcss.str(), inss.str(), std::cout, std::cerr);
 
-	return 0;
+    return 0;
 }
 
