@@ -303,7 +303,9 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
             qlevel++;
             t2[i] = tq->target;
         }
-        assert(isA<T_Pattern>(t2[i]));
+        if (!isA<T_Pattern>(t2[i])) {
+            throw parse_exc("Nothing to quantify");
+        }
         r->v.push_back(((T_Pattern*)(t2[i]))->p);
         for (int j = 1; j <= qlevel; j++) {
             ((P_Quantifier*)(r->v[r->v.size() + 1 - 3*j]))->offset = 3*j;

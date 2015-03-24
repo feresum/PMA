@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
                                     FAIL_TEST("incorrect output");
                                 }
                             } else {
-                                if (err.str().substr(str.size()) != str) {
+                                if (err.str().substr(0, str.size()) != str) {
                                     FAIL_TEST("incorrect error output");
                                 }
                             }
@@ -75,7 +75,6 @@ int main(int argc, char* argv[])
                 last = t;
             }
         }
-        FMT_ASSERT(!last || last > 2);
 
     } catch (std::ifstream::failure x) {
         std::cerr << "Error reading " << fname << std::endl;
