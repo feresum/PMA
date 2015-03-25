@@ -70,6 +70,11 @@ dvUOqixt
 o=0
 
 
+p=\a2\b
+i=aab
+o=1
+
+
 Minecraft chests
 p=\.!(o\C)2o(!\Cw)3
 

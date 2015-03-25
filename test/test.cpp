@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
                 if (t > 2) FMT_ASSERT(pr.size() && in.size());
                 if (blk) {
                     FMT_ASSERT(!~ln.find_first_not_of(BLOCK_O, 2));
-                    int nb = ln.size() - 1;
+                    size_t nb = ln.size() - 1;
                     bool first = true;
                     str.clear();
                     while (READLN, ln.find_first_not_of(BLOCK_C) < nb || ln.size() < nb) {
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
                             }
                         }
                     }
-                    std::cout << "Passed " << ntests << " tests on line " << line << std::endl;
+                    std::cout << "Passed " << ntests << " test(s) on line " << line << std::endl;
                 }
                 last = t;
             }

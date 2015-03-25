@@ -10,6 +10,7 @@ public:
     point direction;
     point position;
     int flags;
+    vector<int> qcount;
 
     State(const Grid &g);
     inline State(const State &o) = default;
