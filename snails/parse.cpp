@@ -217,7 +217,11 @@ P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
             groups.push_back({ open->type, t2.size() });
         } else if (close = dynamic_cast<T_GroupClose*>(t.at(i)))  {
             while (groups.size() && groups.back().g != close->type) {
+                size_t i0 = groups.back().i;
                 groups.pop_back();
+                T_Pattern *gr = new T_Pattern{ parse_group(t2, i0, t2.size()) };
+                t2.erase(t2.begin() + i0, t2.end());
+                t2.push_back(gr);
             }
             size_t i0 = 0;
             if (groups.size()) {
