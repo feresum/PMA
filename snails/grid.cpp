@@ -124,9 +124,9 @@ void Grid::setslime(point p, bool slime) {
         box->at(p) = (box->at(p) & ~SLIMEBIT) | (slime << SLIMEBIT_SHIFT);
         return;
     }
+    uniquify(other);
     for (auto &d: other->data) {
         if (d.p == p) {
-            uniquify(other);
             d.ch = (d.ch & ~SLIMEBIT) | (slime << SLIMEBIT_SHIFT);
             return;
         }
