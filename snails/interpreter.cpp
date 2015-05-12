@@ -58,6 +58,9 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             } else if (mr == MATCH_RESULT_OVERFLOW) {
                 err << "Stack Overflow\n";
                 return;
+            } else if (type == M_TYPE_ALL) {
+                out << 0;
+                return;
             }
         }
     }
