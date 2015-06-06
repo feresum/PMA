@@ -9,6 +9,9 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     size_t nl = program.find('\n');
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
     int chfill = OUT_CHAR;
+    vector<PS_Direction*> dirs;
+    dirs.push_back(new PS_DirAbsolute(point{ 1, 0 }));
+
     if (~nl) {
         s_i o{ program, 0 };
         for (int c; o.i < nl; ) {
@@ -19,6 +22,13 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             else if (c == INST_OPTION_START_TOPLEFT) start = M_START_TOPLEFT;
             else if (c == INST_OPTION_FILL_SPACE) chfill = ' ';
             else if (c == INST_OPTION_FILL_CHAR) chfill = o.get();
+            else if (is_dir_inst(c, false)) {
+                o.back(1);
+                dirs = read_dirs(o, false);
+            } else if (!isspace(c)) {
+                err << "Unrecognized option: " << c;
+                return;
+            }
         }
     }
 
@@ -45,27 +55,29 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     int ymax = start == M_START_ALLBOX ? global.cg.bHeight() : 1;
     for (int y = 0; y < ymax; y++) {
         for (int x = 0; x < xmax; x++) {
-            State local{ global };
-            local.direction = { 1, 0 };
-            local.position = { x, y };
-            match_result mr = match(local, pat);
-            if (mr == MATCH_RESULT_SUCCESS) {
-                if (type == M_TYPE_BOOLEAN) {
-                    out << 1;
+            for (PS_Direction* d : dirs) {
+                State local{ global };
+                local.direction = ((PS_DirAbsolute*)d)->dir;
+                local.position = { x, y };
+                match_result mr = match(local, pat);
+                if (mr == MATCH_RESULT_SUCCESS) {
+                    if (type == M_TYPE_BOOLEAN) {
+                        out << 1;
+                        return;
+                    }
+                    nmatch++;
+                } else if (mr == MATCH_RESULT_OVERFLOW) {
+                    err << "Stack Overflow\n";
+                    return;
+                } else if (type == M_TYPE_ALL) {
+                    out << 0;
                     return;
                 }
-                nmatch++;
-            } else if (mr == MATCH_RESULT_OVERFLOW) {
-                err << "Stack Overflow\n";
-                return;
-            } else if (type == M_TYPE_ALL) {
-                out << 0;
-                return;
             }
         }
     }
     if (type == M_TYPE_ALL) {
-        out << +(nmatch == xmax * ymax);
+        out << 1;
     } else {
         out << nmatch;
     }

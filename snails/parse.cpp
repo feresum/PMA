@@ -22,7 +22,31 @@ int read_num(s_i &x) {
     return num;
 }
 
-vector<PS_Direction*> read_dirs(s_i &x) {
+bool is_dir_inst(int ch, bool allowrel) {
+    switch (ch) {
+    case INST_D_RIGHT:
+    case INST_D_UP:
+    case INST_D_LEFT:
+    case INST_D_DOWN:
+    case INST_D_ORTHOGONAL:
+    case INST_D_DIAGONAL:
+    case INST_D_OCTILINEAR:
+    case INST_D_CLOCKWISE:
+    case INST_D_COUNTERCLOCKWISE:
+    case INST_D_FORWARD:
+    case INST_D_BACKWARD:
+    case INST_D_NORMAL:
+    case INST_D_STATIONARY:
+    case INST_D_ABSNUM:
+        return true;
+    case INST_D_RELNUM:
+        return allowrel;
+    default:
+        return false;
+    }
+}
+
+vector<PS_Direction*> read_dirs(s_i &x, bool allowrel) {
     vector<PS_Direction*> v;
     while (1) {
         char ch = x.get();
@@ -80,8 +104,10 @@ vector<PS_Direction*> read_dirs(s_i &x) {
             v.push_back(new PS_DirAbsolute(DIRECTION_LIST[x.get() & 7]));
             break;
         case INST_D_RELNUM:
-            v.push_back(new PS_DirRelative{ digit(x.peek())? x.get() & 7: 1 });
-            break;
+            if (allowrel) {
+                v.push_back(new PS_DirRelative{ digit(x.peek()) ? x.get() & 7 : 1 });
+                break;
+            }
         default:
             x.back(1);
             return v;
@@ -96,7 +122,10 @@ vector<Token*> parse0(s_i &x) {
     vector<Token*> v;
     int ch;
     while (~(ch = x.get())) {
-        switch (ch) {
+        if (is_dir_inst(ch, true)) {
+            x.back(1);
+            v.push_back(new T_Pattern{ new P_DirectionAlternation{ read_dirs(x, true) } });
+        } else switch (ch) {
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
         {
             x.back(1);
@@ -164,25 +193,6 @@ vector<Token*> parse0(s_i &x) {
 
         case INST_GROUP_DIV:
             v.push_back(new T_GroupDiv{});
-            break;
-
-        case INST_D_RIGHT:
-        case INST_D_UP:
-        case INST_D_LEFT:
-        case INST_D_DOWN:
-        case INST_D_ORTHOGONAL:
-        case INST_D_DIAGONAL:
-        case INST_D_OCTILINEAR:
-        case INST_D_CLOCKWISE:
-        case INST_D_COUNTERCLOCKWISE:
-        case INST_D_FORWARD:
-        case INST_D_BACKWARD:
-        case INST_D_NORMAL:
-        case INST_D_STATIONARY:
-        case INST_D_ABSNUM:
-        case INST_D_RELNUM:
-            x.back(1);
-            v.push_back(new T_Pattern{ new P_DirectionAlternation{ read_dirs(x) } });
             break;
 
         case INST_ASSERT_POSITIVE:

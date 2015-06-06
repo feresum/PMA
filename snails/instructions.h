@@ -1,12 +1,12 @@
 #ifndef H_INSTRUCTIONS
 #define H_INSTRUCTIONS
 
-#define INST_OPTION_RJUST 'r'
+#define INST_OPTION_RJUST 'R'
 #define INST_OPTION_TYPE_BOOLEAN '?'
 #define INST_OPTION_TYPE_ALL '&'
 #define INST_OPTION_START_TOPLEFT '^'
 #define INST_OPTION_FILL_SPACE 'F'
-#define INST_OPTION_FILL_CHAR 'f'
+#define INST_OPTION_FILL_CHAR 'E'
 
 #define INST_D_RIGHT 'r'
 #define INST_D_UP 'u'
