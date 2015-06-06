@@ -965,3 +965,15 @@ wow
   w
 ]
 o=4
+
+
+p[
+M
+!(z!\a)
+]
+i[
+aaa
+aba
+aaa
+]
+o=1

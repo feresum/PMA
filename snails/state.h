@@ -12,7 +12,7 @@ public:
     int flags;
     vector<int> qcount;
 
-    State(const Grid &g);
+    State(const Grid &g, bool mobile);
     inline State(const State &o) = default;
 
     point nextPos();

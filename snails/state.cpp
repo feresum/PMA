@@ -2,7 +2,7 @@
 
 
 
-State::State(const Grid &g) : cg(g), flags(SF_NON_MOVE_MATCH) { }
+State::State(const Grid &g, bool mobile) : cg(g), flags(!mobile * SF_NON_MOVE_MATCH) { }
 
 point State::nextPos() {
     if (flags & SF_NON_MOVE_MATCH) {

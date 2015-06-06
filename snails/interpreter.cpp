@@ -9,6 +9,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     size_t nl = program.find('\n');
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
     int chfill = OUT_CHAR;
+    bool mobile = false;
     vector<PS_Direction*> dirs;
     dirs.push_back(new PS_DirAbsolute(point{ 1, 0 }));
 
@@ -22,6 +23,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             else if (c == INST_OPTION_START_TOPLEFT) start = M_START_TOPLEFT;
             else if (c == INST_OPTION_FILL_SPACE) chfill = ' ';
             else if (c == INST_OPTION_FILL_CHAR) chfill = o.get();
+            else if (c == INST_OPTION_MOBILE_START) mobile = true;
             else if (is_dir_inst(c, false)) {
                 o.back(1);
                 dirs = read_dirs(o, false);
@@ -43,7 +45,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
         return;
     }
     bool empty;
-    State global(Grid{ input, '\n', just, chfill, empty });
+    State global(Grid{ input, '\n', just, chfill, empty }, mobile);
     if (empty && type == M_TYPE_ALL) {
         out << 1;
         return;

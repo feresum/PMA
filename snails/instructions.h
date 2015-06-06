@@ -7,6 +7,7 @@
 #define INST_OPTION_START_TOPLEFT '^'
 #define INST_OPTION_FILL_SPACE 'F'
 #define INST_OPTION_FILL_CHAR 'E'
+#define INST_OPTION_MOBILE_START 'M'
 
 #define INST_D_RIGHT 'r'
 #define INST_D_UP 'u'
