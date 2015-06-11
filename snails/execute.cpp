@@ -1,7 +1,8 @@
 #include "state.h"
 #include "execute.h"
 
-match_result match(State initial, P_Sequence *p) {
+int match(State initial, P_Sequence *p, bool allpaths) {
+    int nmatch = 0;
     vector<StateP> stk;
     stk.push_back(StateP{ initial, p, 0 });
     while (!stk.empty()) {
@@ -11,12 +12,14 @@ match_result match(State initial, P_Sequence *p) {
             bk.seq = bk.seq->parent;
         } else {
             if (bk.seq->v.at(bk.iseq)->match(stk) == 1) {
-                return MATCH_RESULT_SUCCESS;
+                if (!allpaths) return 1;
+                nmatch++;
+                stk.pop_back();
             }
             if (stk.size() > MAX_PATTERN_STACK) {
                 return MATCH_RESULT_OVERFLOW;
             }
         }
     }
-    return MATCH_RESULT_FAIL;
+    return nmatch;
 }

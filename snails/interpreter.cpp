@@ -9,7 +9,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     size_t nl = program.find('\n');
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
     int chfill = OUT_CHAR;
-    bool mobile = false;
+    bool mobile = false, allpaths = false;
     vector<PS_Direction*> dirs;
     dirs.push_back(new PS_DirAbsolute(point{ 1, 0 }));
 
@@ -24,6 +24,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             else if (c == INST_OPTION_FILL_SPACE) chfill = ' ';
             else if (c == INST_OPTION_FILL_CHAR) chfill = o.get();
             else if (c == INST_OPTION_MOBILE_START) mobile = true;
+            else if (c == INST_OPTION_ALL_PATHS) allpaths = true;
             else if (is_dir_inst(c, false)) {
                 o.back(1);
                 dirs = read_dirs(o, false);
@@ -61,13 +62,13 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
                 State local{ global };
                 local.direction = ((PS_DirAbsolute*)d)->dir;
                 local.position = { x, y };
-                match_result mr = match(local, pat);
-                if (mr == MATCH_RESULT_SUCCESS) {
+                int mr = match(local, pat, allpaths);
+                if (mr > 0) {
                     if (type == M_TYPE_BOOLEAN) {
                         out << 1;
                         return;
                     }
-                    nmatch++;
+                    nmatch += mr;
                 } else if (mr == MATCH_RESULT_OVERFLOW) {
                     err << "Stack Overflow\n";
                     return;

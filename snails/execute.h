@@ -14,11 +14,9 @@ enum m_just {
     M_JUST_RIGHT
 };
 
-enum match_result {
-    MATCH_RESULT_FAIL,
-    MATCH_RESULT_SUCCESS,
-    MATCH_RESULT_OVERFLOW
-};
 
-match_result match(State initial, P_Sequence *p);
+#define MATCH_RESULT_OVERFLOW (-1)
+
+
+int match(State initial, P_Sequence *p, bool allpaths = false);
 
