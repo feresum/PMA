@@ -113,14 +113,13 @@ public:
     int match(vector<StateP> &stk){ return 0; }
 };
 
+class P_Teleport : public P_SetState {
+    int match(vector<StateP> &stk);
+};
+
 class P_Terminator : public Pattern {
 public:
-    P_Terminator() {
-        int abc = 3;
-        vector<StateP> bs;
-        int x = match(bs);
-        int y = 3;
-    }
+
     int match(vector<StateP> &stk);
 };
 

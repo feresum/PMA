@@ -26,6 +26,8 @@
 #define INST_D_ABSNUM 'a'
 #define INST_D_RELNUM 'e'
 
+#define INST_TELEPORT 't'
+
 #define INST_GROUP_OPEN1 '('
 #define INST_GROUP_OPEN2 '{'
 #define INST_GROUP_CLOSE1 ')'

@@ -202,6 +202,10 @@ vector<Token*> parse0(s_i &x) {
             v.push_back(new T_Assert{ false });
             break;
 
+        case INST_TELEPORT:
+            v.push_back(new T_Pattern{ new P_Teleport });
+            break;
+
         default:
             if (!isspace(ch)) {
                 throw parse_exc("Unrecognized instruction", x.i);

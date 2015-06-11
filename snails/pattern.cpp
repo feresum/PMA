@@ -105,3 +105,17 @@ int P_Assertion::match(vector<StateP> &stk) {
     }
     return 0;
 }
+
+int P_Teleport::match(vector<StateP> &stk) {
+    StateP st = stk.back();
+    stk.pop_back();
+    st.iseq++;
+    st.st.flags |= SF_NON_MOVE_MATCH;
+    for (int i = st.st.cg.bHeight(); i--;) {
+        for (int j = st.st.cg.bWidth(); j--;) {
+            st.st.position = { j, i };
+            stk.push_back(st);
+        }
+    }
+    return 0;
+}

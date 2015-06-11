@@ -998,3 +998,17 @@ xxxx
 ]
 o=16
 
+p=.t.
+i=xy
+o=2
+
+p[
+A
+.t.
+]
+i[
+ab
+cde
+f
+]
+o=30
