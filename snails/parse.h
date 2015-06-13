@@ -32,7 +32,7 @@ public:
 P_Sequence* parse(s_i &prog);
 
 bool is_dir_inst(int ch, bool allowrel);
-vector<PS_Direction*> read_dirs(s_i &x, bool allowrel);
+vector<Direction> read_dirs(s_i &x, bool allowrel);
 
 
 #endif

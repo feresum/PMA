@@ -80,38 +80,35 @@ class P_SetState : public Pattern {
     
 };
 
-class PS_Direction : public P_SetState {
+class Direction {
 public:
-    virtual point getDir(point prevdir) { NEVERHAPPEN return{}; }
+    enum DType { ABSOLUTE, RELATIVE } type;
+    int x[2];
+
+    Direction(point dx): type(ABSOLUTE) {
+        x[0] = dx.x;
+        x[1] = dx.y;
+    }
+    Direction(int rdir): type(RELATIVE) {
+        x[0] = rdir & 7;
+    }
+    Direction(const Direction &o) = default;
+
+    point getDir(point prevdir); 
+
+    point absdir() { return { x[0], x[1] }; }
 };
 
 class P_DirectionAlternation : public Pattern {
 public:
-    vector<PS_Direction*> list;
-    P_DirectionAlternation(vector<PS_Direction*> list) : list(list) { }
+    vector<Direction> list;
+    P_DirectionAlternation(vector<Direction> list) : list(list) { }
 
     int match(vector<StateP> &stk);
 };
 
 
-class PS_DirAbsolute : public PS_Direction { 
-public: 
-    point dir; 
-    point getDir(point prevdir);
-    PS_DirAbsolute(point dir) : dir(dir) { }
 
-    int match(vector<StateP> &stk){ return 0; }
-};
-
-
-class PS_DirRelative : public PS_Direction { 
-    int angle;
-public: 
-    point getDir(point prevdir);
-    PS_DirRelative(int angle) : angle(angle & 7) { }
-
-    int match(vector<StateP> &stk){ return 0; }
-};
 
 class P_Teleport : public P_SetState {
     int match(vector<StateP> &stk);

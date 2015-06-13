@@ -46,66 +46,66 @@ bool is_dir_inst(int ch, bool allowrel) {
     }
 }
 
-vector<PS_Direction*> read_dirs(s_i &x, bool allowrel) {
-    vector<PS_Direction*> v;
+vector<Direction> read_dirs(s_i &x, bool allowrel) {
+    vector<Direction> v;
     while (1) {
         char ch = x.get();
         switch (ch) {
         case INST_D_RIGHT:
-            v.push_back(new PS_DirAbsolute{ point{ 1, 0 } });
+            v.emplace_back( point{ 1, 0 } );
             break;
         case INST_D_UP:
-            v.push_back(new PS_DirAbsolute{ point{ 0, -1 } });
+            v.emplace_back( point{ 0, -1 } );
             break;
         case INST_D_LEFT:
-            v.push_back(new PS_DirAbsolute{ point{ -1, 0 } });
+            v.emplace_back( point{ -1, 0 } );
             break;
         case INST_D_DOWN:
-            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
+            v.emplace_back( point{ 0, 1 } );
             break;
         case INST_D_ORTHOGONAL:
-            v.push_back(new PS_DirAbsolute{ point{ 1, 0 } });
-            v.push_back(new PS_DirAbsolute{ point{ 0, -1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, 0 } });
-            v.push_back(new PS_DirAbsolute{ point{ 0, 1 } });
+            v.emplace_back( point{ 1, 0 } );
+            v.emplace_back( point{ 0, -1 } );
+            v.emplace_back( point{ -1, 0 } );
+            v.emplace_back( point{ 0, 1 } );
             break;
         case INST_D_DIAGONAL:
-            v.push_back(new PS_DirAbsolute{ point{ 1, -1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, -1 } });
-            v.push_back(new PS_DirAbsolute{ point{ -1, 1 } });
-            v.push_back(new PS_DirAbsolute{ point{ 1, 1 } });
+            v.emplace_back( point{ 1, -1 } );
+            v.emplace_back( point{ -1, -1 } );
+            v.emplace_back( point{ -1, 1 } );
+            v.emplace_back( point{ 1, 1 } );
             break;
         case INST_D_OCTILINEAR:
             for (point p : DIRECTION_LIST) {
-                v.push_back(new PS_DirAbsolute{ p });
+                v.emplace_back( p );
             }
             break;
         case INST_D_CLOCKWISE:
-            v.push_back(new PS_DirRelative{ 6 });
+            v.emplace_back( 6 );
             break;
         case INST_D_COUNTERCLOCKWISE:
-            v.push_back(new PS_DirRelative{ 2 });
+            v.emplace_back( 2 );
             break;
         case INST_D_FORWARD:
-            v.push_back(new PS_DirRelative{ 0 });
+            v.emplace_back( 0 );
             break;
         case INST_D_BACKWARD:
-            v.push_back(new PS_DirRelative{ 4 });
+            v.emplace_back( 4 );
             break;
         case INST_D_NORMAL:
-            v.push_back(new PS_DirRelative{ 2 });
-            v.push_back(new PS_DirRelative{ 6 });
+            v.emplace_back( 2 );
+            v.emplace_back( 6 );
             break;
         case INST_D_STATIONARY:
-            v.push_back(new PS_DirAbsolute{ point{ 0, 0 } });
+            v.emplace_back( point{ 0, 0 } );
             break;
         case INST_D_ABSNUM:
             if (!digit(x.peek())) throw parse_exc("Missing digit for absolute direction", x.i);
-            v.push_back(new PS_DirAbsolute(DIRECTION_LIST[x.get() & 7]));
+            v.emplace_back( DIRECTION_LIST[x.get() & 7] );
             break;
         case INST_D_RELNUM:
             if (allowrel) {
-                v.push_back(new PS_DirRelative{ digit(x.peek()) ? x.get() & 7 : 1 });
+                v.emplace_back( digit(x.peek()) ? x.get() & 7 : 1 );
                 break;
             }
         default:

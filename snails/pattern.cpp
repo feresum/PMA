@@ -2,11 +2,9 @@
 #include "interpreter.h"
 #include "execute.h"
 
-point PS_DirAbsolute::getDir(point prev) {
-    return dir;
-}
 
-point PS_DirRelative::getDir(point prev) {
+
+point getDirRelative(int angle, point prev) {
     const int m1[] = { 1, 1, 0, -1, -1, -1, 0, 1};
     int c = m1[angle], s = m1[angle + 6 & 7];
     point r = { c*prev.x + s*prev.y, c*prev.y - s*prev.x };
@@ -17,12 +15,19 @@ point PS_DirRelative::getDir(point prev) {
     return r;
 }
 
+point Direction::getDir(point prev) {
+    if (type == ABSOLUTE)
+        return absdir();
+    else
+        return getDirRelative(x[0], prev);
+}
+
 int P_DirectionAlternation::match(vector<StateP> &stk) {
     StateP sp = stk.back(); stk.pop_back();
 
     vector<point> dirs;
     for (size_t i = 0; i < list.size(); i++) {
-        point d = list[i]->getDir(sp.st.direction);
+        point d = list[i].getDir(sp.st.direction);
         if (std::find(dirs.begin(), dirs.end(), d) == dirs.end()) {
             dirs.push_back(d);
         }

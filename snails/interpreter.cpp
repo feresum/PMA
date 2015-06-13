@@ -10,8 +10,8 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
     int chfill = OUT_CHAR;
     bool mobile = false, allpaths = false;
-    vector<PS_Direction*> dirs;
-    dirs.push_back(new PS_DirAbsolute(point{ 1, 0 }));
+    vector<Direction> dirs;
+    dirs.emplace_back( point{ 1, 0 } );
 
     if (~nl) {
         s_i o{ program, 0 };
@@ -58,9 +58,9 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     int ymax = start == M_START_ALLBOX ? global.cg.bHeight() : 1;
     for (int y = 0; y < ymax; y++) {
         for (int x = 0; x < xmax; x++) {
-            for (PS_Direction* d : dirs) {
+            for (Direction &d : dirs) {
                 State local{ global };
-                local.direction = ((PS_DirAbsolute*)d)->dir;
+                local.direction = d.absdir();
                 local.position = { x, y };
                 int mr = match(local, pat, allpaths);
                 if (mr > 0) {
