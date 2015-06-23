@@ -148,11 +148,21 @@ vector<Token*> parse0(s_i &x) {
         }
 
         case INST_QUANTIFIER_AT_LEAST_1:
-            v.push_back(new T_Quantifier{ 1, ~0U });
+            if (x.peek() == INST_QUANTIFIER_RELUCTANT) {
+                x.get();
+                v.push_back(new T_Quantifier{ ~0U, 1 });
+            } else {
+                v.push_back(new T_Quantifier{ 1, ~0U });
+            }
             break;
 
         case INST_QUANTIFIER_AT_MOST_1:
-            v.push_back(new T_Quantifier{ 0, 1 });
+            if (x.peek() == INST_QUANTIFIER_RELUCTANT) {
+                x.get();
+                v.push_back(new T_Quantifier{ 1, 0 });
+            } else {
+                v.push_back(new T_Quantifier{ 0, 1 });
+            }
             break;
 
         case INST_CHAR_LITERAL:

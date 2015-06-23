@@ -83,18 +83,20 @@ int P_Jump::match(vector<StateP> &stk) {
 int P_Quantifier::match(vector<StateP> &stk) {
     StateP sp = stk.back(); stk.pop_back();
     unsigned count = sp.st.qcount.back();
-    if (count >= minimum) {
+    bool again = count < maximum, stop = count >= minimum;
+    if (reluctant ? again : stop) {
         stk.push_back(sp);
         stk.back().iseq += offset;
         stk.back().st.qcount.pop_back();
     } 
-    if (count < maximum) {
+    if (reluctant ? stop : again) {
         stk.push_back(sp);
         stk.back().iseq++;
         stk.back().st.qcount.back()++;
     }
     return 0;
 }
+
 
 int P_QReset::match(vector<StateP> &stk) {
     stk.back().st.qcount.push_back(0);
