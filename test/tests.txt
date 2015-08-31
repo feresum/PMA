@@ -1,3 +1,4 @@
+
 Verify chessboard
 
 p[
@@ -1008,3 +1009,58 @@ cde
 f
 ]
 o=30
+
+p[
+&
+={ (t\Dt\Et\Ct\M), !(t.)}   {
+(o\D)+ l^D,=~ u{^D=(r^D,~)}, ~ |
+(o\E)+ l^E,=~ u{^E=(r^E,~)}, ~ |
+(o\C)+ l^C,=~ u{^C=(r^C,~)}, ~ |
+(o\M)+ l^M,=~ u{^M=(r^M,~)}, ~
+]
+
+p[
+&
+={(t\Dt\Et\Ct\M),!(t.}{(o\D)+l^D,=~u{^D=(r^D,~},~|o\E`+l^E,=~u{^E=(r^E,~},~|o\C`+l^C,=~u{^C=(r^C,~},~|o\M`+l^M,=~u{^M=(r^M,~},~
+]
+
+i[
+DDDDDDDDDDDDMCCCCCCCCCCC
+DEEEEEEEEEEDMMMMMMMCCCCC
+DEEEEEEEEEEDMMMCCCCCCCCC
+DEEEEEEEEEEDMMMMMMMMCCCC
+DDDDDDDDDDDDMMMMMMMMMMMC
+]
+
+i=DEMC
+
+i[
+DD
+EE
+MC
+MC
+]
+
+i[
+EEDDMMMCCC
+EEEDDDMMCC
+]
+
+o=1
+
+
+i=EDM
+i=EDMCCMDE
+i[
+DDMMEECC
+DMMEECCC
+]
+i[
+DDDDDDDDDDDDMCCCCCCCCCCC
+DEEEEEEEEEEDMMMMMMMCCCCC
+DEEEEEEEEEEMDMMCCCCCCCCC
+DEEEEEEEEEEDMMMMMMMMCCCC
+DDDDDDDDDDDDMMMMMMMMMMMC
+]
+
+o=0
