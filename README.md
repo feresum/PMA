@@ -1,4 +1,4 @@
-Programming language for 2-dimensional pattern matching.
+Programming language for 2-dimensional pattern matching. <br/>
 Supported compilers: gcc 4.7, Microsoft VC++ 18.0. 
 
 <h6>To build:</h6>
