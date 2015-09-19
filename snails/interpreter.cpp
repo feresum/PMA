@@ -25,6 +25,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             else if (c == INST_OPTION_FILL_CHAR) chfill = o.get();
             else if (c == INST_OPTION_MOBILE_START) mobile = true;
             else if (c == INST_OPTION_ALL_PATHS) allpaths = true;
+			else if (c == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT && o.peek() == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT) skip_comment(o);
             else if (is_dir_inst(c, false)) {
                 o.back(1);
                 dirs = read_dirs(o, false);

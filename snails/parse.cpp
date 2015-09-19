@@ -22,6 +22,11 @@ int read_num(s_i &x) {
     return num;
 }
 
+void skip_comment(s_i &x) {
+    int next;
+    while ((next = x.get()) != '\n' && ~next);
+}
+
 bool is_dir_inst(int ch, bool allowrel) {
     switch (ch) {
     case INST_D_RIGHT:
@@ -130,7 +135,7 @@ vector<Token*> parse0(s_i &x) {
         {
             x.back(1);
             unsigned ll = read_num(x), ul;
-            if (x.peek() == INST_QUANTIFIER_RANGE) {
+            if (x.peek(0) == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT && x.peek(1) != INST_QUANTIFIER_RANGE_OR_LINE_COMMENT) {
                 x.get();
                 ul = digit(x.peek()) ? read_num(x) : ~0U;
             } else {
@@ -140,10 +145,14 @@ vector<Token*> parse0(s_i &x) {
             break;
         }
 
-        case INST_QUANTIFIER_RANGE:
+        case INST_QUANTIFIER_RANGE_OR_LINE_COMMENT:
         {
-            unsigned ul = digit(x.peek()) ? read_num(x) : ~0U;
-            v.push_back(new T_Quantifier{ 0, ul });
+            if (x.peek() == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT) {
+                skip_comment(x);
+            } else {
+                unsigned ul = digit(x.peek()) ? read_num(x) : ~0U;
+                v.push_back(new T_Quantifier{ 0, ul });
+            }
             break;
         }
 
