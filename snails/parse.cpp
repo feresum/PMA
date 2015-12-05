@@ -36,15 +36,15 @@ bool is_dir_inst(int ch, bool allowrel) {
     case INST_D_ORTHOGONAL:
     case INST_D_DIAGONAL:
     case INST_D_OCTILINEAR:
+    case INST_D_STATIONARY:
+    case INST_D_ABSNUM:
+        return true;
+    case INST_D_RELNUM:
     case INST_D_CLOCKWISE:
     case INST_D_COUNTERCLOCKWISE:
     case INST_D_FORWARD:
     case INST_D_BACKWARD:
     case INST_D_NORMAL:
-    case INST_D_STATIONARY:
-    case INST_D_ABSNUM:
-        return true;
-    case INST_D_RELNUM:
         return allowrel;
     default:
         return false;
@@ -53,7 +53,7 @@ bool is_dir_inst(int ch, bool allowrel) {
 
 vector<Direction> read_dirs(s_i &x, bool allowrel) {
     vector<Direction> v;
-    while (1) {
+    do {
         char ch = x.get();
         switch (ch) {
         case INST_D_RIGHT:
@@ -105,19 +105,16 @@ vector<Direction> read_dirs(s_i &x, bool allowrel) {
             v.emplace_back( point{ 0, 0 } );
             break;
         case INST_D_ABSNUM:
-            if (!digit(x.peek())) throw parse_exc("Missing digit for absolute direction", x.i);
-            v.emplace_back( DIRECTION_LIST[x.get() & 7] );
+            v.emplace_back( DIRECTION_LIST[digit(x.peek()) ? x.get() & 7 : 1] );
             break;
         case INST_D_RELNUM:
-            if (allowrel) {
-                v.emplace_back( digit(x.peek()) ? x.get() & 7 : 1 );
-                break;
-            }
+            v.emplace_back( digit(x.peek()) ? x.get() & 7 : 1 );
+            break;
         default:
-            x.back(1);
-            return v;
+            NEVERHAPPEN
         }
-    }
+    } while (is_dir_inst(x.peek(), allowrel));
+    return v;
 }
 
 
