@@ -1,6 +1,7 @@
 #ifndef H_GENERAL
 #define H_GENERAL
 
+#include <stddef.h>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -20,7 +21,7 @@ inline point operator+(point a, point b) { return { a.x + b.x, a.y + b.y }; }
 
 #define OUT_CHAR ((int)0x80000000)
 
-#define NEVERHAPPEN assert(0),0;
+#define NEVERHAPPEN (assert(0),0);
 
 
 #define MAX_PATTERN_STACK 99999

@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "general.h"
+#include "encoding.h"
 
 template <typename T> using refc = std::shared_ptr<T>;
 
@@ -17,7 +18,7 @@ struct Grid {
     refc<cg_box> box;
     refc<cg_other> other;
 
-    Grid(const std::string &raw, int sep, int just, int fill, bool &empty);
+    Grid(s_i raw, int sep, int just, int fill, bool &empty);
     inline Grid(const Grid &cg) = default;
 
     int operator()(point p);

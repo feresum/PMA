@@ -125,12 +125,12 @@ vector<Token*> parse0(s_i &x) {
     int ch;
     while (~(ch = x.get())) {
         if (is_dir_inst(ch, true)) {
-            x.back(1);
+            x.back();
             v.push_back(new T_Pattern{ new P_DirectionAlternation{ read_dirs(x, true) } });
         } else switch (ch) {
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
         {
-            x.back(1);
+            x.back();
             unsigned ll = read_num(x), ul;
             if (x.peek(0) == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT && x.peek(1) != INST_QUANTIFIER_RANGE_OR_LINE_COMMENT) {
                 x.get();
@@ -224,7 +224,7 @@ vector<Token*> parse0(s_i &x) {
 
         default:
             if (!isspace(ch)) {
-                throw parse_exc("Unrecognized instruction", x.i);
+                throw parse_exc("Unrecognized instruction", x.ind());
             }
         }//switch
     

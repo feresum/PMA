@@ -96,3 +96,6 @@ The operators are parsed according to the following precedence order, from highe
 4. Quantifiers `<n>` `+` `?` `[m],[n]`
 5. Assertions `!` `=`
 6. Juxtaposition
+
+##Character encodings
+The program and input are initially read as streams of bytes. If the program is valid (ish) as UTF-8, then it is treated as UTF-8. Otherwise, all characters are one byte and vice versa. If the program and input are both valid as UTF-8, then the input is treated as UTF-8. Otherwise, it is treated as single-byte characters.

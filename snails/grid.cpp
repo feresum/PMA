@@ -5,10 +5,10 @@ struct cg_box {
     int w, h;
     int *data;
 
-    cg_box(const std::string &raw, int sep, int just, int fill, bool &empty) {
+    cg_box(s_i raw, int sep, int just, int fill, bool &empty) {
         int maxrow = 0, nrows = 0, rlen = 0;
-        for (auto c : raw) {
-            if (c == sep) {
+        for (s_i x = raw; !x.atEnd(); ) {
+            if (x.get() == sep) {
                 maxrow = max(maxrow, rlen);
                 rlen = 0;
                 nrows++;
@@ -28,7 +28,8 @@ struct cg_box {
         for (int i = 0; i < w*h; i++) data[i] = fill;
 
         int row = 0, col = 0;
-        for (auto c : raw) {
+        for (s_i x = raw; !x.atEnd();) {
+            int c = x.get();
             if (c == sep) {
                 col = 0;
                 row++;
@@ -95,7 +96,7 @@ void cg_other::set(point p, int ch) { //TODO
     data.push_back({ p, ch });
 }
 
-Grid::Grid(const std::string &raw, int sep, int just, int fill, bool &empty):
+Grid::Grid(s_i raw, int sep, int just, int fill, bool &empty):
         box(new cg_box(raw,sep,just,fill,empty)),
         other(new cg_other) { }
 

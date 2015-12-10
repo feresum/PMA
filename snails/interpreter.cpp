@@ -3,9 +3,10 @@
 #include "parse.h"
 #include "instructions.h"
 #include "execute.h"
+#include "encoding.h"
 
 void interpreter(const str &program, const str &input, std::ostream &out, std::ostream &err) {
-    
+    encoding_t progEnc = detect_encoding(program);
     size_t nl = program.find('\n');
     m_just just = M_JUST_LEFT; m_start start = M_START_ALLBOX; m_type type = M_TYPE_COUNT;
     int chfill = OUT_CHAR;
@@ -14,8 +15,8 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
     dirs.emplace_back( point{ 1, 0 } );
 
     if (~nl) {
-        s_i o{ program, 0 };
-        for (int c; o.i < nl; ) {
+        s_i o{ program, progEnc == ENC_UTF8 };
+        for (int c; o.ind() < nl; ) {
             c = o.get();
             if (c == INST_OPTION_TYPE_BOOLEAN) type = M_TYPE_BOOLEAN;
             else if (c == INST_OPTION_TYPE_ALL) type = M_TYPE_ALL;
@@ -27,7 +28,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
             else if (c == INST_OPTION_ALL_PATHS) allpaths = true;
 			else if (c == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT && o.peek() == INST_QUANTIFIER_RANGE_OR_LINE_COMMENT) skip_comment(o);
             else if (is_dir_inst(c, false)) {
-                o.back(1);
+                o.back();
                 dirs = read_dirs(o, false);
             } else if (!isspace(c)) {
                 err << "Unrecognized option: " << c;
@@ -36,7 +37,7 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
         }
     }
 
-    s_i body{ program, nl + 1 };
+    s_i body{ program, progEnc == ENC_UTF8, nl + 1 };
     P_Sequence *pat;
     try {
         pat = parse(body);
@@ -47,7 +48,8 @@ void interpreter(const str &program, const str &input, std::ostream &out, std::o
         return;
     }
     bool empty;
-    State global(Grid{ input, '\n', just, chfill, empty }, mobile);
+    State global(Grid{ s_i{ input, progEnc != ENC_SINGLE_BYTE && detect_encoding(input) != ENC_SINGLE_BYTE },
+        '\n', just, chfill, empty }, mobile);
     if (empty && type == M_TYPE_ALL) {
         out << 1;
         return;
