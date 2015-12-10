@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
     try {
         fs.open(fname);
         int last = 0;
-        while (fs.exceptions(std::ifstream::badbit), !fs.eof() && READLN) {
-            fs.exceptions(std::ifstream::failbit | std::ifstream::badbit | std::ifstream::eofbit);
+        while (fs.exceptions(std::ifstream::badbit), READLN) {
+            fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             int t, blk;
             if (ln.size() >= 2 && (t = 1 + TYPES.find(ln[0])) && ((blk = ln[1] == BLOCK_O) || ln[1] == LINE_O)) {
                 if (t > 2) FMT_ASSERT(pr.size() && in.size());
@@ -76,8 +76,8 @@ int main(int argc, char* argv[])
             }
         }
 
-    } catch (std::ifstream::failure x) {
-        std::cerr << "Error reading " << fname << std::endl;
+    } catch (std::ifstream::failure& x) {
+        std::cerr << "Error reading " << fname << " : " << x.what() << std::endl;
         return 1;
     }
 
