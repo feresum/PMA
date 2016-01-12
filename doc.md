@@ -84,7 +84,7 @@ If the program contains at least one newline, the first line is interpreted from
 
 ####Miscellaneous options
  - `E` Replaces any cells within the input grid that don't have a character on them (due to ragged lines) with the character after `E`.
- - `F` Same as `E` with an argument of <space>.
+ - `F` Same as `E` with an argument of \<space>.
  - `R` Given lines of unequal lengths, constructs the input grid by right-justifying them, rather than the default of left-justifying.
 
 ###Operator precedence
