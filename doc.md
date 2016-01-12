@@ -92,7 +92,7 @@ The operators are parsed according to the following precedence order, from highe
 
 1. Inside of parenthesis- or curly brace-delimited groups: `(...)` `{...}`
 2. Parts of an alternation: `...|...`
-3. Backtick-delimited groups: `...\``
+3. Backtick-delimited groups: ``...` ``
 4. Quantifiers `<n>` `+` `?` `[m],[n]`
 5. Assertions `!` `=`
 6. Juxtaposition
