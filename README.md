@@ -8,11 +8,11 @@ Supported compilers: gcc 4.7, Microsoft VC++ 18.0.
 
     One may either use the CMake build system, or run one of the following commands:
 
-    g++ -std=c++11 -O2 snails/*.cpp main/*.cpp -o snails
+    g++ -std=c++11 -DNDEBUG -O2 snails/*.cpp main/*.cpp -o snails
     
 or
 
-    cl /nologo /EHsc /O2 snails/*.cpp main/*.cpp /Fesnails
+    cl /nologo /EHsc /DNDEBUG /O2 snails/*.cpp main/*.cpp /Fesnails
 
 <h6>Usage:</h6>
 
