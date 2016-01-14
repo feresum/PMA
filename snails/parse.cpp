@@ -1,10 +1,12 @@
-#include <typeinfo>
-#include <cctype>
-
+#include "general.h"
 #include "parse.h"
 #include "pattern.h"
 #include "instructions.h"
 #include "tokens.h"
+
+#ifdef DEBUG_PARSER
+#include <iostream>
+#endif
 
 int read_ch(s_i &x) {
     return x.get();
@@ -120,7 +122,7 @@ vector<Direction> read_dirs(s_i &x, bool allowrel) {
 
 
 
-vector<Token*> parse0(s_i &x) {
+static vector<Token*> tokenize(s_i &x) {
     vector<Token*> v;
     int ch;
     while (~(ch = x.get())) {
@@ -222,10 +224,11 @@ vector<Token*> parse0(s_i &x) {
             v.push_back(new T_Pattern{ new P_Teleport });
             break;
 
+        case ' ':case '\t': case '\n': case '\r':
+            break;
+
         default:
-            if (!isspace(ch)) {
-                throw parse_exc("Unrecognized instruction", x.ind());
-            }
+            throw parse_exc("Unrecognized instruction", x.ind());
         }//switch
     
     }
@@ -233,132 +236,161 @@ vector<Token*> parse0(s_i &x) {
 }
 
 
-
-
-P_Sequence * parse_group(vector<Token*> &t, size_t start, size_t end) {
-    vector<Token*> t2;
-    struct gi { int g; size_t i; };
-    vector<gi> groups;
-    for (size_t i = start; i < end; i++) {
-        T_GroupOpen *open;
-        T_GroupClose *close;
-        
-        if (open = dynamic_cast<T_GroupOpen*>(t.at(i))) {
-            groups.push_back({ open->type, t2.size() });
-        } else if (close = dynamic_cast<T_GroupClose*>(t.at(i)))  {
-            while (groups.size() && groups.back().g != close->type) {
-                size_t i0 = groups.back().i;
-                groups.pop_back();
-                T_Pattern *gr = new T_Pattern{ parse_group(t2, i0, t2.size()) };
-                t2.erase(t2.begin() + i0, t2.end());
-                t2.push_back(gr);
+static vector<Token*> insert_concatenators(const vector<Token*>& t) {
+    vector<Token*> out;
+    static T_Concatenation cat;
+    static T_Pattern empty(new P_Sequence);
+    bool firstInGroup = true;
+    bool afterPrefix = false;
+    out.push_back(new T_GroupOpen{ 0 });
+    for (Token* tok : t) {
+        if (tok->isUnaryPrefix() || tok->isAtom()) {
+            if (!afterPrefix) {
+                if (firstInGroup)
+                    firstInGroup = false;
+                else
+                    out.push_back(&cat);
             }
-            size_t i0 = 0;
-            if (groups.size()) {
-                i0 = groups.back().i;
-                groups.pop_back();
-            }
-            T_Pattern *gr = new T_Pattern{ parse_group(t2, i0, t2.size()) };
-            t2.erase(t2.begin() + i0, t2.end());
-            t2.push_back(gr);
+        } else if (tok->isGroupOpener()) {
+            if (!afterPrefix && !firstInGroup)
+                out.push_back(&cat);
+            firstInGroup = true;
+        } else if (afterPrefix) {
+            throw parse_exc("Nothing to assert");
+        } else if (isA<T_Alternator>(tok)) {
+            if (firstInGroup)
+                out.push_back(&empty);
+            firstInGroup = true;
+        } else if (tok->isUnaryPostfix()) {
+            if (firstInGroup)
+                throw parse_exc("Nothing to quantify");
         } else {
-            t2.push_back(t[i]);
+            assert(tok->isGroupCloser());
+            if (firstInGroup)
+                out.push_back(&empty);
+            firstInGroup = false;
         }
-    } 
-    while (!groups.empty()) {
-        size_t i0 = groups.back().i;
-        groups.pop_back();
-        T_Pattern *gr = new T_Pattern{ parse_group(t2, i0, t2.size()) };
-        t2.erase(t2.begin() + i0, t2.end());
-        t2.push_back(gr);
+        out.push_back(tok);
+        afterPrefix = tok->isUnaryPrefix();
     }
-
-    
-    vector<size_t> alts;
-    for (size_t i = 0; i < t2.size(); i++) {
-        if (isA<T_Alternator>(t2[i])) {
-            alts.push_back(i);
-        } else if (isA<T_GroupDiv>(t2[i])) {
-            size_t last = alts.empty() ? 0 : alts.back();
-            t2[last + 1] = new T_Pattern{ parse_group(t2, last + 1, i) };
-            t2.erase(t2 + last + 2, t2 + i + 1);
-            i = last + 1;
-        }
-    }
-    if (!alts.empty()) {
-        P_Alternation *a = new P_Alternation;
-        alts.push_back(t2.size());
-        size_t last = 0;
-        for (size_t i : alts) {
-            a->v.push_back(parse_group(t2, last, i));
-            last = i + 1;
-        }
-        P_Sequence *r = new P_Sequence;
-        r->v.push_back(a);
-        return r;
-    }
-
-    
-    for (size_t i = 0; i < t2.size(); i++) {
-        T_Quantifier *tq;
-        if (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
-            if (!tq->target) {
-                if (!i) {
-                    throw parse_exc("Nothing to quantify");
-                }
-                tq->target = t2[i - 1];
-                t2.erase(t2 + --i);
-            }
-        }
-    }
-
-    for (size_t i = 0; i < t2.size(); i++) {
-        T_Assert *ass;
-        if (ass = dynamic_cast<T_Assert*>(t2[i])) {
-            if (i + 1 == t2.size()) {
-                throw parse_exc("Nothing to assert");
-            }
-            P_Sequence *s = parse_group(t2, i + 1, i + 2);
-            s->v.push_back(new P_Terminator);
-            t2[i] = new T_Pattern(new P_Assertion(ass->value, s));
-
-            t2.erase(t2 + i + 1);
-        }
-    }
-
-    P_Sequence *r = new P_Sequence;
-
-    for (size_t i = 0; i < t2.size(); i++) {
-        int qlevel = 0;
-        T_Quantifier *tq;
-        while (tq = dynamic_cast<T_Quantifier*>(t2[i])) {
-            r->v.push_back(new P_QReset);
-            r->v.push_back(new P_Quantifier(tq->minimum, tq->maximum));
-            qlevel++;
-            t2[i] = tq->target;
-        }
-        if (!isA<T_Pattern>(t2[i])) {
-            throw parse_exc("Nothing to quantify");
-        }
-        r->v.push_back(((T_Pattern*)(t2[i]))->p);
-        for (int j = 1; j <= qlevel; j++) {
-            ((P_Quantifier*)(r->v[r->v.size() + 1 - 3*j]))->offset = 3*j;
-            r->v.push_back(new P_Jump{ 1 - 3*j });
-        }
-    }
-
-    return r;
+    if (afterPrefix)
+        throw parse_exc("Nothing to assert");
+    if (firstInGroup)
+        out.push_back(&empty);
+    out.push_back(new T_GroupClose{ 0 });
+    return out;
 }
 
-P_Sequence * parse(s_i &prog) {
-    auto toks = parse0(prog);
-    Pattern *res = parse_group(toks, 0, toks.size());
-    P_Sequence *ps;
-    if (isA<P_Sequence>(res)) ps = (P_Sequence*)res;
-    else {
-        ps = new P_Sequence;
-        ps->v.push_back(res);
+P_Sequence* sequencify(Pattern* p) {
+    P_Sequence* ps = dynamic_cast<P_Sequence*>(p);
+    if (ps)
+        return ps;
+    ps = new P_Sequence;
+    ps->v.push_back(p);
+    return ps;
+}
+
+static bool should_eval(Token* next, vector<Token*>& opstk) {
+    Token* top = opstk.back();
+    if (next->precedence() <= top->precedence())
+        return true;
+    T_GroupClose* nextgc = dynamic_cast<T_GroupClose*>(next);
+    if (!nextgc) return false;
+    T_GroupOpen* topgo = dynamic_cast<T_GroupOpen*>(top);
+    assert(topgo);
+    if (topgo->type == nextgc->type) {
+        opstk.pop_back();
+        return false;
     }
+    if (topgo->type == 0)
+        return false;
+    return true;
+}
+static P_Sequence* parse_tokenized(vector<Token*>& t) {
+    vector<Token*> opstk;
+    vector<Pattern*> atomstk;
+    bool expectAtom = true; // as opposed to binary op
+    for (Token* tok : t) {
+        if (tok->isUnaryPostfix()) {
+            //assume this has the highest precedence
+            T_Quantifier* tq = (T_Quantifier*) tok;
+            Pattern* p = pop(atomstk);
+            P_Sequence* qseq = new P_Sequence;
+            P_Quantifier* q = new P_Quantifier{ tq->minimum, tq->maximum };
+            q->offset = 3;
+            qseq->v.push_back(new P_QReset);
+            qseq->v.push_back(q);
+            qseq->v.push_back(p);
+            qseq->v.push_back(new P_Jump{ -2 });
+            P_Sequence* tseq = dynamic_cast<P_Sequence*>(p);
+            if (tseq) {
+                tseq->parent = qseq;
+                tseq->iparent = 2;
+            }
+            atomstk.push_back(qseq);
+        } else if (tok->isUnaryPrefix() || tok->isGroupOpener()) {
+            assert(expectAtom);
+            opstk.push_back(tok);
+        } else if (tok->isAtom()) {
+            assert(expectAtom);
+            expectAtom = false;
+            T_Pattern* tp = dynamic_cast<T_Pattern*>(tok);
+            assert(tp);
+            atomstk.push_back(tp->p);
+        } else {
+            assert(!expectAtom);
+            while (should_eval(tok, opstk)) {
+                Token* op = pop(opstk);
+                if (op->isUnaryPrefix()) {
+                    T_Assert* ta = dynamic_cast<T_Assert*>(op);
+                    assert(ta);
+                    P_Sequence* ps = sequencify(pop(atomstk));
+                    ps->v.push_back(new P_Terminator);
+                    atomstk.push_back(new P_Assertion{ ta->value, ps });
+                } else if (op->isBinaryOp()) {
+                    Pattern* right = pop(atomstk);
+                    Pattern* left = pop(atomstk);
+                    if (isA<T_Concatenation>(op)) {
+                        P_Sequence* ps = sequencify(left);
+                        P_Sequence* rps = dynamic_cast<P_Sequence*>(right);
+                        if (rps) {
+                            rps->parent = ps;
+                            rps->iparent = ps->v.size();
+                        }
+                        ps->v.push_back(right);
+                        atomstk.push_back(ps);
+                    } else {
+                        assert(isA<T_Alternator>(op));
+                        P_Alternation *alt = new P_Alternation;
+                        alt->v.push_back(sequencify(left));
+                        alt->v.push_back(sequencify(right));
+                        atomstk.push_back(alt);
+                    }
+                }
+            }
+            if (tok->isBinaryOp()) {
+                expectAtom = true;
+                opstk.push_back(tok);
+            }
+        }
+    }
+    assert(atomstk.size() == 1);
+    assert(opstk.size() == 0);
+    return sequencify(pop(atomstk));
+}
+
+
+P_Sequence * parse(s_i &prog) {
+    auto tokens0 = tokenize(prog);
+    auto tokens1 = insert_concatenators(tokens0);
+#ifdef DEBUG_PARSER
+    std::cerr << "Preliminary tokens:";
+    for (Token* t : tokens0) std::cerr << ' ' << (str)*t;
+    std::cerr << "\nModified tokens:";
+    for (Token* t : tokens1) std::cerr << ' ' << (str)*t;
+    std::cerr << '\n';
+#endif
+    P_Sequence *ps = parse_tokenized(tokens1);
     ps->v.push_back(new P_Terminator);
     return ps;
 }

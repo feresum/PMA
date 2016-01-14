@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <string>
 
 using std::max;
 using std::min;
@@ -32,6 +33,12 @@ template<typename Sub, typename Super> inline bool isA(Super *thing) {
 
 template<typename T> typename vector<T>::iterator operator+(vector<T> &v, int i) {
     return v.begin() + i;
+}
+
+template<typename T> T pop(vector<T>& v) {
+    T e = std::move(v.back());
+    v.pop_back();
+    return e;
 }
 
 const point DIRECTION_LIST[] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
