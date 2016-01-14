@@ -6,6 +6,8 @@ Supported compilers: gcc 4.7, Microsoft VC++ 18.0.
 
 <h6>To build:</h6>
 
+    One may either use the CMake build system, or run one of the following commands:
+
     g++ -std=c++11 -O2 snails/*.cpp main/*.cpp -o snails
     
 or
