@@ -14,7 +14,6 @@ int main(int argc, char* argv[])
     const char* fname = argc > 1 ? argv[1] : "tests.txt";
 
     std::ifstream fs;
-    
 
     std::vector<std::string> pr, in;
     std::string ln, str;
@@ -25,6 +24,10 @@ int main(int argc, char* argv[])
 
     try {
         fs.open(fname);
+        if (!fs.good()) {
+            std::cerr << "Couldn't open the file: " << fname << std::endl;
+            return 1;
+        }
         int last = 0;
         while (fs.exceptions(std::ifstream::badbit), READLN) {
             fs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -76,13 +79,13 @@ int main(int argc, char* argv[])
             }
         }
 
-    } catch (std::ifstream::failure& x) {
+    } catch (const decltype(fs)::failure& x) {
         std::cerr << "Error reading " << fname << " : " << x.what() << std::endl;
         return 1;
     }
 
     std::cout << "All tests succeeded\n";
 
-	return 0;
+    return 0;
 }
 
