@@ -9,13 +9,13 @@ class StateP;
 
 class Pattern {
 public:
-    virtual int match(vector<StateP> &stk) { return NEVERHAPPEN };
+    virtual int match(vector<StateP> &stk) { NEVERHAPPEN };
 };
 
 
 class P_Char : public Pattern { 
 public:
-    virtual bool testch(int ch) { return NEVERHAPPEN };
+    virtual bool testch(int ch) { NEVERHAPPEN };
 
     int match(vector<StateP> &stk);
 };

@@ -22,7 +22,11 @@ inline point operator+(point a, point b) { return { a.x + b.x, a.y + b.y }; }
 
 #define OUT_CHAR ((int)0x80000000)
 
-#define NEVERHAPPEN (assert(0),0);
+#if defined(_MSC_VER)
+#define NEVERHAPPEN { assert(!"This is not supposed to happen"); __assume(false); }
+#else
+#define NEVERHAPPEN { assert(!"This is not supposed to happen"); __builtin_unreachable(); }
+#endif
 
 
 #define MAX_PATTERN_STACK 99999

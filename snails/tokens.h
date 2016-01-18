@@ -16,9 +16,7 @@ public:
     virtual bool isGroupCloser() { return false; }
 
 	typedef int precedence_t;
-    virtual precedence_t precedence() {
-        return NEVERHAPPEN;
-    }
+    virtual precedence_t precedence() { NEVERHAPPEN }
 
 #ifdef DEBUG_PARSER
 #ifdef _MSC_VER
