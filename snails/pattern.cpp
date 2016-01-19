@@ -4,7 +4,7 @@
 
 
 
-point getDirRelative(int angle, point prev) {
+static point getDirRelative(int angle, point prev) {
     const int m1[] = { 1, 1, 0, -1, -1, -1, 0, 1};
     int c = m1[angle], s = m1[angle + 6 & 7];
     point r = { c*prev.x + s*prev.y, c*prev.y - s*prev.x };

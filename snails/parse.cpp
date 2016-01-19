@@ -10,15 +10,15 @@
 #include <iostream>
 #endif
 
-int read_ch(s_i &x) {
+static int read_ch(s_i &x) {
     return x.get();
 }
 
-bool digit(int ch) {
+static bool digit(int ch) {
     return ch >= '0' && ch <= '9';
 }
 
-int read_num(s_i &x) {
+static int read_num(s_i &x) {
     int num = 0;
     while (digit(x.peek())) {
         num = num * 10 + (x.get() - '0');
@@ -120,8 +120,6 @@ vector<Direction> read_dirs(s_i &x, bool allowrel) {
     } while (is_dir_inst(x.peek(), allowrel));
     return v;
 }
-
-
 
 
 static vector<Token*> tokenize(s_i &x) {
