@@ -3,6 +3,8 @@
 #include "pattern.h"
 #include "instructions.h"
 #include "tokens.h"
+#include "ast.h"
+#include "compile.h"
 
 #ifdef DEBUG_PARSER
 #include <iostream>
@@ -281,14 +283,7 @@ static vector<Token*> insert_concatenators(const vector<Token*>& t) {
     return out;
 }
 
-P_Sequence* sequencify(Pattern* p) {
-    P_Sequence* ps = dynamic_cast<P_Sequence*>(p);
-    if (ps)
-        return ps;
-    ps = new P_Sequence;
-    ps->v.push_back(p);
-    return ps;
-}
+
 
 static bool should_eval(Token* next, vector<Token*>& opstk) {
     Token* top = opstk.back();
@@ -306,28 +301,17 @@ static bool should_eval(Token* next, vector<Token*>& opstk) {
         return false;
     return true;
 }
-static P_Sequence* parse_tokenized(vector<Token*>& t) {
+static AST::Pattern* parse_tokenized(vector<Token*>& t) {
     vector<Token*> opstk;
-    vector<Pattern*> atomstk;
+    vector<AST::Pattern*> pstk;
     bool expectAtom = true; // as opposed to binary op
     for (Token* tok : t) {
         if (tok->isUnaryPostfix()) {
             //assume this has the highest precedence
-            T_Quantifier* tq = (T_Quantifier*) tok;
-            Pattern* p = pop(atomstk);
-            P_Sequence* qseq = new P_Sequence;
-            P_Quantifier* q = new P_Quantifier{ tq->minimum, tq->maximum };
-            q->offset = 3;
-            qseq->v.push_back(new P_QReset);
-            qseq->v.push_back(q);
-            qseq->v.push_back(p);
-            qseq->v.push_back(new P_Jump{ -2 });
-            P_Sequence* tseq = dynamic_cast<P_Sequence*>(p);
-            if (tseq) {
-                tseq->parent = qseq;
-                tseq->iparent = 2;
-            }
-            atomstk.push_back(qseq);
+            auto tq = static_cast<T_Quantifier*>(tok);
+            auto* q = new AST::Quantifier{ tq->minimum, tq->maximum };
+            q->child = pop(pstk);
+            pstk.push_back(q);
         } else if (tok->isUnaryPrefix() || tok->isGroupOpener()) {
             assert(expectAtom);
             opstk.push_back(tok);
@@ -336,7 +320,9 @@ static P_Sequence* parse_tokenized(vector<Token*>& t) {
             expectAtom = false;
             T_Pattern* tp = dynamic_cast<T_Pattern*>(tok);
             assert(tp);
-            atomstk.push_back(tp->p);
+            auto* pp = new AST::PrecompiledPattern;
+            pp->pat = tp->p;
+            pstk.push_back(pp);
         } else {
             assert(!expectAtom);
             while (should_eval(tok, opstk)) {
@@ -344,28 +330,21 @@ static P_Sequence* parse_tokenized(vector<Token*>& t) {
                 if (op->isUnaryPrefix()) {
                     T_Assert* ta = dynamic_cast<T_Assert*>(op);
                     assert(ta);
-                    P_Sequence* ps = sequencify(pop(atomstk));
-                    ps->v.push_back(new P_Terminator);
-                    atomstk.push_back(new P_Assertion{ ta->value, ps });
+                    auto* ass = new AST::Assertion;
+                    ass->child = pop(pstk);
+                    ass->value = ta->value;
+                    pstk.push_back(ass);
                 } else if (op->isBinaryOp()) {
-                    Pattern* right = pop(atomstk);
-                    Pattern* left = pop(atomstk);
+                    AST::Binary* bin;
                     if (isA<T_Concatenation>(op)) {
-                        P_Sequence* ps = sequencify(left);
-                        P_Sequence* rps = dynamic_cast<P_Sequence*>(right);
-                        if (rps) {
-                            rps->parent = ps;
-                            rps->iparent = ps->v.size();
-                        }
-                        ps->v.push_back(right);
-                        atomstk.push_back(ps);
+                        bin = new AST::Concatenation;
                     } else {
                         assert(isA<T_Alternator>(op));
-                        P_Alternation *alt = new P_Alternation;
-                        alt->v.push_back(sequencify(left));
-                        alt->v.push_back(sequencify(right));
-                        atomstk.push_back(alt);
+                        bin = new AST::Alternation;
                     }
+                    bin->child[1] = pop(pstk);
+                    bin->child[0] = pop(pstk);
+                    pstk.push_back(bin);
                 }
             }
             if (tok->isBinaryOp()) {
@@ -374,9 +353,9 @@ static P_Sequence* parse_tokenized(vector<Token*>& t) {
             }
         }
     }
-    assert(atomstk.size() == 1);
+    assert(pstk.size() == 1);
     assert(opstk.size() == 0);
-    return sequencify(pop(atomstk));
+    return pop(pstk);
 }
 
 
@@ -390,8 +369,6 @@ P_Sequence * parse(s_i &prog) {
     for (Token* t : tokens1) std::cerr << ' ' << (str)*t;
     std::cerr << '\n';
 #endif
-    P_Sequence *ps = parse_tokenized(tokens1);
-    ps->v.push_back(new P_Terminator);
-    return ps;
+    return compile_top(parse_tokenized(tokens1));
 }
 

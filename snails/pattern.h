@@ -132,11 +132,7 @@ public:
     unsigned minimum, maximum;
     bool reluctant;
     int offset;
-    P_Quantifier(unsigned a, unsigned b) {
-        minimum = std::min(a, b);
-        maximum = std::max(a, b);
-        reluctant = b < a;
-    }
+
     int match(vector<StateP> &stk);
 };
 

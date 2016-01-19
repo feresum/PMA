@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.1)
 project(snails CXX)
 
 add_library(snails_lib STATIC
+    snails/ast.h
+    snails/compile.h
+    snails/compile.cpp
     snails/encoding.h
     snails/encoding.cpp
     snails/execute.h
