@@ -3,6 +3,7 @@
 
 #include "general.h"
 #include "pattern.h"
+#include "ast.h"
 
 class Token {
 public:
@@ -30,8 +31,8 @@ Token::~Token() { }
 
 class T_Pattern : public Token {
 public:
-    Pattern *p;
-    T_Pattern(Pattern *p) : p(p) { }
+    AST::Pattern *p;
+    T_Pattern(AST::Pattern *p) : p(p) { }
     bool isAtom() { return true; }
 #ifdef DEBUG_PARSER
     explicit operator str() {

@@ -25,13 +25,13 @@ namespace AST
         virtual ~Binary() {}
     };
 
+    struct MatchChar : Leaf {
+        virtual ~MatchChar() {}
+    };
+
     // ---- instantiated Patterns ----
 
     struct EmptyPattern : Leaf {};
-
-    struct PrecompiledPattern : Leaf {
-        ::Pattern* pat;
-    };
 
     struct Alternation : Binary {};
 
@@ -51,14 +51,42 @@ namespace AST
         }
     };
 
+    struct MatchCharSingle : MatchChar {
+        int ch;
+        MatchCharSingle(int ch) : ch(ch) {}
+    };
+
+    struct MatchCharNegative : MatchChar {
+        int ch;
+        MatchCharNegative(int ch) : ch(ch) {}
+    };
+
+    struct MatchCharAny : MatchChar {};
+
+    struct MatchCharOut : MatchChar {};
+
+    struct Teleport : Leaf {};
+
+    struct DirectionAlternation : Leaf {
+        vector<Direction> dirs;
+        DirectionAlternation(const vector<Direction>& dirs) : dirs(dirs) {}
+    };
+
 
     template<template<class> typename Func, typename... T> auto dispatch(Pattern* p, T&&... args) -> decltype(Func<Pattern>()(p, args...)) {
-        if (isA<EmptyPattern>(p)) return Func<EmptyPattern>()(p, args...);
-        if (isA<PrecompiledPattern>(p)) return Func<PrecompiledPattern>()(p, args...);
-        if (isA<Alternation>(p)) return Func<Alternation>()(p, args...);
-        if (isA<Concatenation>(p)) return Func<Concatenation>()(p, args...);
-        if (isA<Assertion>(p)) return Func<Assertion>()(p, args...);
-        if (isA<Quantifier>(p)) return Func<Quantifier>()(p, args...);
+#define DISPATCH_CLASS(CLASS) if (isA<CLASS>(p)) return Func<CLASS>()(p, args...)
+
+        DISPATCH_CLASS(EmptyPattern);
+        DISPATCH_CLASS(Alternation);
+        DISPATCH_CLASS(Concatenation);
+        DISPATCH_CLASS(Assertion);
+        DISPATCH_CLASS(Quantifier);
+        DISPATCH_CLASS(MatchCharSingle);
+        DISPATCH_CLASS(MatchCharNegative);
+        DISPATCH_CLASS(MatchCharAny);
+        DISPATCH_CLASS(MatchCharOut);
+        DISPATCH_CLASS(Teleport);
+        DISPATCH_CLASS(DirectionAlternation);
         NEVERHAPPEN
     }
 

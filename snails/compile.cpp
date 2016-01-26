@@ -19,10 +19,6 @@ static Pattern* compile(AST::EmptyPattern* p) {
     return new P_Sequence;
 }
 
-static Pattern* compile(AST::PrecompiledPattern* p) {
-    return p->pat;
-}
-
 static Pattern* compile(AST::Concatenation* p) {
     P_Sequence* ps = sequencify(compile(p->child[0]));
     Pattern* right = compile(p->child[1]);
@@ -67,6 +63,25 @@ static Pattern* compile(AST::Quantifier* q) {
         tseq->iparent = 2;
     }
     return qseq;
+}
+
+static Pattern* compile(AST::MatchCharSingle* p) {
+    return new P_CharExact{ p->ch };
+}
+static Pattern* compile(AST::MatchCharNegative* p) {
+    return new P_CharNegative{ p->ch };
+}
+static Pattern* compile(AST::MatchCharAny*) {
+    return new P_CharAny;
+}
+static Pattern* compile(AST::MatchCharOut*) {
+    return new P_CharOut;
+}
+static Pattern* compile(AST::Teleport* p) {
+    return new P_Teleport;
+}
+static Pattern* compile(AST::DirectionAlternation* p) {
+    return new P_DirectionAlternation{ p->dirs };
 }
 
 template<class PClass> struct compile_template {

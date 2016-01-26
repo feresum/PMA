@@ -128,7 +128,7 @@ static vector<Token*> tokenize(s_i &x) {
     while (~(ch = x.get())) {
         if (is_dir_inst(ch, true)) {
             x.back();
-            v.push_back(new T_Pattern{ new P_DirectionAlternation{ read_dirs(x, true) } });
+            v.push_back(new T_Pattern{ new AST::DirectionAlternation{ read_dirs(x, true) } });
         } else switch (ch) {
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
         {
@@ -174,19 +174,19 @@ static vector<Token*> tokenize(s_i &x) {
             break;
 
         case INST_CHAR_LITERAL:
-            v.push_back(new T_Pattern{ new P_CharExact{ x.get() } });
+            v.push_back(new T_Pattern{ new AST::MatchCharSingle{ x.get() } });
             break;
 
         case INST_CHAR_NEGATIVE_LITERAL:
-            v.push_back(new T_Pattern{ new P_CharNegative{ x.get() } });
+            v.push_back(new T_Pattern{ new AST::MatchCharNegative{ x.get() } });
             break;
 
         case INST_CHAR_ANY:
-            v.push_back(new T_Pattern{ new P_CharAny });
+            v.push_back(new T_Pattern{ new AST::MatchCharAny });
             break;
 
         case INST_CHAR_OUT:
-            v.push_back(new T_Pattern{ new P_CharOut });
+            v.push_back(new T_Pattern{ new AST::MatchCharOut });
             break;
 
         case INST_ALTERNATION:
@@ -221,7 +221,7 @@ static vector<Token*> tokenize(s_i &x) {
             break;
 
         case INST_TELEPORT:
-            v.push_back(new T_Pattern{ new P_Teleport });
+            v.push_back(new T_Pattern{ new AST::Teleport });
             break;
 
         case ' ':case '\t': case '\n': case '\r':
@@ -239,7 +239,7 @@ static vector<Token*> tokenize(s_i &x) {
 static vector<Token*> insert_concatenators(const vector<Token*>& t) {
     vector<Token*> out;
     static T_Concatenation cat;
-    static T_Pattern empty(new P_Sequence);
+    static T_Pattern empty(new AST::EmptyPattern);
     bool firstInGroup = true;
     bool afterPrefix = false;
     out.push_back(new T_GroupOpen{ 0 });
@@ -318,9 +318,7 @@ static AST::Pattern* parse_tokenized(vector<Token*>& t) {
             expectAtom = false;
             T_Pattern* tp = dynamic_cast<T_Pattern*>(tok);
             assert(tp);
-            auto* pp = new AST::PrecompiledPattern;
-            pp->pat = tp->p;
-            pstk.push_back(pp);
+            pstk.push_back(tp->p);
         } else {
             assert(!expectAtom);
             while (should_eval(tok, opstk)) {
