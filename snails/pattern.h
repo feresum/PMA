@@ -1,6 +1,8 @@
 #ifndef H_PATTERN
 #define H_PATTERN
 
+#include <type_traits>
+
 #include "state.h"
 #include "general.h"
 
@@ -8,50 +10,89 @@ class StateP;
 
 
 class Pattern {
-public:
-    virtual int match(vector<StateP> &stk) { NEVERHAPPEN };
+};
+int Pattern_match(Pattern* p, vector<StateP>& stk);
+
+#define PTYPE_LIST_APPLY(MACRO) \
+    MACRO(P_CharAny) \
+    MACRO(P_CharOut) \
+    MACRO(P_CharExact) \
+    MACRO(P_CharNegative) \
+    MACRO(P_Sequence) \
+    MACRO(P_Alternation) \
+    MACRO(P_Assertion) \
+    MACRO(P_DirectionAlternation) \
+    MACRO(P_Teleport) \
+    MACRO(P_Terminator) \
+    MACRO(P_Jump) \
+    MACRO(P_Quantifier) \
+    MACRO(P_QReset) \
+
+#define APPEND_COMMA(W) W,
+enum class PType
+{
+    PTYPE_LIST_APPLY(APPEND_COMMA)
 };
 
+template<typename PT> Pattern* rcps(PT* p) {
+    static_assert(std::is_same<const PType, decltype(PT::static_type)>::value, "wrong");
+    return reinterpret_cast<Pattern*>(p);
+}
+template<typename PT_ptr> PT_ptr PT_dynamic_cast(Pattern* p) {
+    typedef typename std::remove_pointer<PT_ptr>::type PT;
+    if (PT::static_type == *reinterpret_cast<PType*>(p))
+        return reinterpret_cast<PT_ptr>(p);
+    else
+        return nullptr;
+}
 
-class P_Char : public Pattern { 
-public:
-    virtual bool testch(int ch) { NEVERHAPPEN };
+#define PTYPE(NAME) \
+    PType type = PType::NAME; \
+    static const PType static_type = PType::NAME;
+
+
+
+struct P_CharAny {
+    PTYPE(P_CharAny)
 
     int match(vector<StateP> &stk);
+    bool testch(int ch) const { return ch >= 0; }
 };
 
-class P_CharAny : public P_Char {
-public:
-    bool testch(int ch) { return ch >= 0; }
+struct P_CharOut {
+    PTYPE(P_CharOut)
+
+    int match(vector<StateP> &stk);
+    bool testch(int ch) const { return ch < 0; }
 };
 
-class P_CharOut : public P_Char {
-public:
-    bool testch(int ch) { return ch < 0; }
-};
+struct P_CharExact {
+    PTYPE(P_CharExact)
 
-class P_CharExact : public P_Char { 
-public: 
     int c;
     P_CharExact(int c) : c(c) { }
 
-    bool testch(int ch) { 
+    int match(vector<StateP> &stk);
+    bool testch(int ch) const { 
         return c == ch; 
     }
 };
 
-class P_CharNegative : public P_Char {
-public:
+struct P_CharNegative {
+    PTYPE(P_CharNegative)
+
     int c;
     P_CharNegative(int c) : c(c) { }
 
-    bool testch(int ch) {
+    int match(vector<StateP> &stk);
+    bool testch(int ch) const {
         return ch >= 0 && c != ch;
     }
 };
 
-class P_Sequence : public Pattern {
-public:
+struct P_Sequence {
+    PTYPE(P_Sequence)
+
     vector<Pattern*> v;
     P_Sequence *parent;
     int iparent;
@@ -59,14 +100,16 @@ public:
     int match(vector<StateP> &stk);
 };
 
-class P_Alternation : public Pattern {
-public:
+struct P_Alternation {
+    PTYPE(P_Alternation)
+
     vector<P_Sequence*> v;
     int match(vector<StateP> &stk);
 };
 
-class P_Assertion : public Pattern { 
-public: 
+struct P_Assertion {
+    PTYPE(P_Assertion)
+ 
     bool value; 
     P_Sequence *pattern;
     
@@ -76,12 +119,10 @@ public:
 };
 
 
-class P_SetState : public Pattern {
-    
-};
 
-class Direction {
-public:
+
+struct Direction {
+
     enum DType { ABSOLUTE, RELATIVE } type;
     int x[2];
 
@@ -99,8 +140,9 @@ public:
     point absdir() { return { x[0], x[1] }; }
 };
 
-class P_DirectionAlternation : public Pattern {
-public:
+struct P_DirectionAlternation {
+    PTYPE(P_DirectionAlternation)
+
     vector<Direction> list;
     P_DirectionAlternation(vector<Direction> list) : list(list) { }
 
@@ -109,26 +151,27 @@ public:
 
 
 
-
-class P_Teleport : public P_SetState {
+struct P_Teleport {
+    PTYPE(P_Teleport)
     int match(vector<StateP> &stk);
 };
 
-class P_Terminator : public Pattern {
-public:
-
+struct P_Terminator {
+    PTYPE(P_Terminator)
     int match(vector<StateP> &stk);
 };
 
-class P_Jump : public Pattern {
-public:
+struct P_Jump {
+    PTYPE(P_Jump)
+
     int offset;
     P_Jump(int offset) : offset(offset) { }
     int match(vector<StateP> &stk);
 };
 
-class P_Quantifier : public Pattern {
-public:
+struct P_Quantifier {
+    PTYPE(P_Quantifier)
+
     unsigned minimum, maximum;
     bool reluctant;
     int offset;
@@ -136,8 +179,9 @@ public:
     int match(vector<StateP> &stk);
 };
 
-class P_QReset : public Pattern {
-public:
+struct P_QReset {
+    PTYPE(P_QReset)
+
     int match(vector<StateP> &stk);
 };
 

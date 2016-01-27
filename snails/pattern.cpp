@@ -3,6 +3,14 @@
 #include "execute.h"
 
 
+int Pattern_match(Pattern* p, vector<StateP>& stk) {
+#define PATTERN_DISPATCH(PTYPE) case PType::PTYPE: return reinterpret_cast<PTYPE*>(p)->match(stk);
+    PType type = *reinterpret_cast<PType*>(p);
+    switch (type) {
+        PTYPE_LIST_APPLY(PATTERN_DISPATCH)
+    }
+    NEVERHAPPEN
+}
 
 static point getDirRelative(int angle, point prev) {
     const int m1[] = { 1, 1, 0, -1, -1, -1, 0, 1};
@@ -50,15 +58,28 @@ int P_Alternation::match(vector<StateP> &stk) {
     return 0;
 }
 
-int P_Char::match(vector<StateP> &stk) {
+template<class P> int P_Char_match(const P& p, vector<StateP> &stk) {
     State &st = stk.back().st;
-    if (testch(st.nextChar()) && st.canAdvance()) {
+    if (p.testch(st.nextChar()) && st.canAdvance()) {
         st.advance();
         stk.back().iseq++;
     } else {
         stk.pop_back();
     }
     return 0;
+}
+
+int P_CharAny::match(vector<StateP>& stk) {
+    return P_Char_match(*this, stk);
+}
+int P_CharExact::match(vector<StateP>& stk) {
+    return P_Char_match(*this, stk);
+}
+int P_CharNegative::match(vector<StateP>& stk) {
+    return P_Char_match(*this, stk);
+}
+int P_CharOut::match(vector<StateP>& stk) {
+    return P_Char_match(*this, stk);
 }
 
 int P_Terminator::match(vector<StateP> &stk) {

@@ -11,7 +11,7 @@ int match(State initial, P_Sequence *p, bool allpaths) {
             bk.iseq = bk.seq->iparent + 1;
             bk.seq = bk.seq->parent;
         } else {
-            if (bk.seq->v.at(bk.iseq)->match(stk) == 1) {
+            if (Pattern_match(bk.seq->v.at(bk.iseq), stk) == 1) {
                 if (!allpaths) return 1;
                 nmatch++;
                 stk.pop_back();

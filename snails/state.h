@@ -21,7 +21,7 @@ public:
     void advance();
 };
 
-class P_Sequence;
+struct P_Sequence;
 
 class StateP {
 public:
