@@ -54,8 +54,8 @@ Examples of equivalent ways to group instructions:
 
 - `a(b}c` <-> `{a(b)}c`
 - `a(b}c)d` <-> `({a(b)}c)d`
-- ``(a{b}c\`d`` <-> `((a{b}c)d)`
-- ``a{b|cd\`e\`f}`` <-> `a{b|((cd)e)f}`
+- ``(a{b}c`d`` <-> `((a{b}c)d)`
+- ``a{b|cd`e`f}`` <-> `a{b|((cd)e)f}`
 
 
 ###Assertions
