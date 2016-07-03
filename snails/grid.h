@@ -7,7 +7,32 @@
 #include "general.h"
 #include "encoding.h"
 
-template <typename T> using refc = std::shared_ptr<T>;
+template <typename T>
+struct refc {
+    T* ptr;
+    int* count;
+    refc(T* p): ptr(p), count(new int(1)) { }
+    int use_count() { return *count; }
+    refc(const refc& o): ptr(o.ptr), count(o.count) {
+        ++*count;
+    }
+    void decrement() {
+        if (*count == 1) {
+            delete count;
+            delete ptr;
+        } else {
+            --*count;
+        }
+    }
+    ~refc() { decrement(); }
+    void reset(T* p) {
+        decrement();
+        ptr = p;
+        count = new int(1);
+    }
+    T& operator*() { return *ptr; }
+    T* operator->() { return ptr; }
+};
 
 struct cg_box;
 struct cg_other;
@@ -19,7 +44,8 @@ struct Grid {
     refc<cg_other> other;
 
     Grid(s_i raw, int sep, int just, int fill, bool &empty);
-    inline Grid(const Grid &cg) = default;
+    Grid(const Grid &cg);
+    ~Grid();
 
     int operator()(point p);
     int operator()(int x, int y) { return operator()({ x, y }); }

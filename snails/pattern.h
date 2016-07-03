@@ -73,7 +73,7 @@ struct P_CharExact {
     P_CharExact(int c) : c(c) { }
 
     int match(vector<StateP> &stk);
-    bool testch(int ch) const { 
+    bool testch(int ch) const {
         return c == ch; 
     }
 };
@@ -109,7 +109,7 @@ struct P_Alternation {
 
 struct P_Assertion {
     PTYPE(P_Assertion)
- 
+
     bool value; 
     P_Sequence *pattern;
     

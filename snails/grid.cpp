@@ -138,3 +138,6 @@ void Grid::setslime(point p, bool slime) {
 
 int Grid::bWidth() { return box->w; }
 int Grid::bHeight() { return box->h; }
+
+Grid::Grid(const Grid &cg) = default;
+Grid::~Grid() = default;
