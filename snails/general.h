@@ -32,6 +32,7 @@ inline point operator+(point a, point b) { return { a.x + b.x, a.y + b.y }; }
 #define MAX_PATTERN_STACK 99999
 
 template<typename Sub, typename Super> inline bool isA(Super *thing) {
+    static_assert(std::is_base_of<Super, Sub>::value, "derp cast");
     return !!dynamic_cast<Sub*>(thing);
 }
 
@@ -46,6 +47,5 @@ template<typename T> T pop(vector<T>& v) {
 }
 
 const point DIRECTION_LIST[] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
-
 
 #endif
