@@ -44,12 +44,16 @@ public:
 class T_Assert : public Token {
 public:
     bool value;
+    AST::Pattern *teleport = nullptr, *direction = nullptr;
     T_Assert(bool value) : value(value) { }
     bool isUnaryPrefix() { return true; }
     precedence_t precedence() { return 30; }
 #ifdef DEBUG_PARSER
     explicit operator str() {
-        return value ? "=" : "!";
+        str s = value ? "=" : "!";
+        if (teleport) { s += "(+t)"; }
+        if (direction) { s += "(+dir)"; }
+        return s;
     }
 #endif
 };

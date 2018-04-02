@@ -235,7 +235,32 @@ static vector<Token*> tokenize(s_i &x) {
     return v;
 }
 
-
+static vector<Token*> attach_assertion_directions(const vector<Token*> t) {
+    vector<Token*> out;
+    T_Assert* assertionLast = nullptr;
+    for (Token* tok : t) {
+        if (T_Assert* ass = dynamic_cast<T_Assert*>(tok)) {
+            assertionLast = new T_Assert(ass->value);
+            out.push_back(assertionLast);
+            continue;
+        }
+        if (assertionLast) {
+            if (T_Pattern* pat = dynamic_cast<T_Pattern*>(tok)) {
+                if (!assertionLast->teleport && isA<AST::Teleport>(pat->p)) {
+                    assertionLast->teleport = pat->p;
+                    continue;
+                }
+                if (!assertionLast->direction && isA<AST::DirectionAlternation>(pat->p)) {
+                    assertionLast->direction = pat->p;
+                    continue;
+                }
+            }
+        }
+        assertionLast = nullptr;
+        out.push_back(tok);
+    }
+    return out;
+}
 static vector<Token*> insert_concatenators(const vector<Token*>& t) {
     vector<Token*> out;
     static T_Concatenation cat;
@@ -327,8 +352,17 @@ static AST::Pattern* parse_tokenized(vector<Token*>& t) {
                     T_Assert* ta = dynamic_cast<T_Assert*>(op);
                     assert(ta);
                     auto* ass = new AST::Assertion;
-                    ass->child = pop(pstk);
                     ass->value = ta->value;
+                    AST::Pattern* asserted = pop(pstk);
+                    for (AST::Pattern* prefix : {ta->direction, ta->teleport}) {
+                        if (prefix) {
+                            auto* cat = new AST::Concatenation;
+                            cat->child[0] = prefix;
+                            cat->child[1] = asserted;
+                            asserted = cat;
+                        }
+                    }
+                    ass->child = asserted;
                     pstk.push_back(ass);
                 } else if (op->isBinaryOp()) {
                     AST::Binary* bin;
@@ -357,7 +391,7 @@ static AST::Pattern* parse_tokenized(vector<Token*>& t) {
 
 P_Sequence * parse(s_i &prog) {
     auto tokens0 = tokenize(prog);
-    auto tokens1 = insert_concatenators(tokens0);
+    auto tokens1 = insert_concatenators(attach_assertion_directions(tokens0));
 #ifdef DEBUG_PARSER
     std::cerr << "Preliminary tokens:";
     for (Token* t : tokens0) std::cerr << ' ' << (str)*t;

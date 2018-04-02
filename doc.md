@@ -100,5 +100,7 @@ The operators are parsed according to the following precedence order, from highe
 5. Assertions `!` `=`
 6. Juxtaposition
 
+Exception: If a teleport and/or a direction immediately follow an assertion operator, the expression following the teleport/direction (with, as usual, higher precedence than assertion) will also be included in the assertion. For example, `!tu.3~` is equivalent to `!(tu.3)~` not `!(t)u.3~`.
+
 ## Character encodings
 The program and input are initially read as streams of bytes. If the program is valid (ish) as UTF-8, then it is treated as UTF-8. Otherwise, all characters are one byte and vice versa. If the program and input are both valid as UTF-8, then the input is treated as UTF-8. Otherwise, it is treated as single-byte characters.
